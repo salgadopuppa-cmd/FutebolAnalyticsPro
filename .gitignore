@@ -13,3 +13,9 @@ yarn-debug.log*
 yarn-error.log*
 playwright-report/
 e2e/test-results/
+ 
+# Ignore local SQLite DB files
+server/data/*.db
+*.sqlite
+*.sqlite3
+server/data/fap.db

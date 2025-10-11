@@ -1,0 +1,91 @@
+name: CI - E2E Matrix
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  e2e:
+    name: E2E on ${{ matrix.os }} / Node ${{ matrix.node }} / ${{ matrix.browser }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [18, 20]
+        browser: [chromium, firefox, webkit]
+    env:
+      CI: true
+      ALLOW_TEST_ENDPOINTS: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.node }}-
+
+      - name: Install server deps
+        run: |
+          cd server
+          npm ci
+
+      - name: Write Firebase service account (if provided)
+        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON != '' }}
+        run: |
+          mkdir -p server
+          printf '%s' "${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}" > server/firebase-service-account.json
+          echo "FIREBASE_SERVICE_ACCOUNT_PATH=server/firebase-service-account.json" >> $GITHUB_ENV
+
+      - name: Start server in background
+        run: |
+          cd server
+          nohup node index.js > ../server.log 2>&1 &
+          echo $! > server.pid
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://localhost:3000/api/debug/status; then echo 'server up'; break; fi
+            sleep 2
+          done
+
+      - name: Install E2E deps
+        run: |
+          cd e2e
+          npm ci
+
+      - name: Install Playwright browsers
+        run: |
+          cd e2e
+          npx playwright install --with-deps
+
+      - name: Run tests
+        run: |
+          cd e2e
+          BROWSER=${{ matrix.browser }} npm test || true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts
+          path: |
+            server.log
+            e2e/failure-*.png
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then kill $(cat server.pid) || true; fi
