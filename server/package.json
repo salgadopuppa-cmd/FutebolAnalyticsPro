@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "start-ci": "node index.js"
+    "start-ci": "node ./bin/start-ci.js",
+    "stop-ci": "node ./bin/stop-ci.js"
   },
   "dependencies": {
     "body-parser": "^1.20.2",

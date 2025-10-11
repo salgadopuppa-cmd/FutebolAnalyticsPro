@@ -1,0 +1,34 @@
+name: "Server Manager"
+description: "Start or stop the local server for CI using npm scripts in the server folder"
+inputs:
+  command:
+    description: "start or stop"
+    required: true
+    default: "start"
+  port:
+    description: "port to wait for (not currently used)"
+    required: false
+    default: "3000"
+runs:
+  using: "composite"
+  steps:
+    - name: Ensure node deps for server
+      shell: bash
+      run: |
+        cd server
+        npm ci
+
+    - name: Start server (npm start-ci)
+      if: ${{ inputs.command == 'start' }}
+      shell: bash
+      run: |
+        cd server
+        # use npm to run the cross-platform start wrapper which detaches and writes server.pid
+        npm run start-ci
+
+    - name: Stop server (npm stop-ci)
+      if: ${{ inputs.command == 'stop' }}
+      shell: bash
+      run: |
+        cd server
+        npm run stop-ci

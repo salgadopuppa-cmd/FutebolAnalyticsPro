@@ -69,21 +69,10 @@ jobs:
           Set-Content -Path server\firebase-service-account.json -Value $sa -Force
           Add-Content -Path $env:GITHUB_ENV -Value 'FIREBASE_SERVICE_ACCOUNT_PATH=server/firebase-service-account.json'
 
-      - name: Start server in background (linux/macos)
-        if: runner.os != 'Windows'
-        run: |
-          cd server
-          nohup npm run start-ci > ../server.log 2>&1 &
-          echo $! > server.pid
-
-      - name: Start server in background (windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          Set-Location server
-          # Start npm run start-ci as a background process and record PID
-          $proc = Start-Process -FilePath npm -ArgumentList 'run','start-ci' -WorkingDirectory (Get-Location) -PassThru
-          $proc.Id | Out-File -FilePath ..\server.pid -Encoding ascii
+      - name: Start server (composite action)
+        uses: ./.github/actions/server-manager
+        with:
+          command: start
 
       - name: Wait for server (linux/macos)
         if: runner.os != 'Windows'
@@ -130,16 +119,8 @@ jobs:
             server.log
             e2e/failure-*.png
 
-      - name: Stop server (linux/macos)
-        if: always() && runner.os != 'Windows'
-        run: |
-          if [ -f server.pid ]; then kill $(cat server.pid) || true; fi
-
-      - name: Stop server (windows)
-        if: always() && runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          if (Test-Path ..\server.pid) {
-            $pid = Get-Content ..\server.pid
-            try { Stop-Process -Id $pid -ErrorAction SilentlyContinue } catch { }
-          }
+      - name: Stop server (composite action)
+        if: always()
+        uses: ./.github/actions/server-manager
+        with:
+          command: stop
