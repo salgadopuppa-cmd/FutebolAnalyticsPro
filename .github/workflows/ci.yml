@@ -41,25 +41,70 @@ jobs:
           cd server
           npm ci
 
-      - name: Write Firebase service account (if provided)
-        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON != '' }}
+      - name: Write Firebase service account (if provided) (linux/macos)
+        if: runner.os != 'Windows'
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: |
+          if [ -z "${FIREBASE_SERVICE_ACCOUNT_JSON}" ]; then
+            echo "No Firebase service account provided; skipping"
+            exit 0
+          fi
           mkdir -p server
-          printf '%s' "${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}" > server/firebase-service-account.json
+          printf '%s' "${FIREBASE_SERVICE_ACCOUNT_JSON}" > server/firebase-service-account.json
           echo "FIREBASE_SERVICE_ACCOUNT_PATH=server/firebase-service-account.json" >> $GITHUB_ENV
 
-      - name: Start server in background
+      - name: Write Firebase service account (if provided) (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if (-not $env:FIREBASE_SERVICE_ACCOUNT_JSON) {
+            Write-Host 'No Firebase service account provided; skipping'
+            exit 0
+          }
+          New-Item -ItemType Directory -Path server -Force | Out-Null
+          $sa = $env:FIREBASE_SERVICE_ACCOUNT_JSON
+          Set-Content -Path server\firebase-service-account.json -Value $sa -Force
+          Add-Content -Path $env:GITHUB_ENV -Value 'FIREBASE_SERVICE_ACCOUNT_PATH=server/firebase-service-account.json'
+
+      - name: Start server in background (linux/macos)
+        if: runner.os != 'Windows'
         run: |
           cd server
           nohup node index.js > ../server.log 2>&1 &
           echo $! > server.pid
 
-      - name: Wait for server
+      - name: Start server in background (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-Location server
+          # Start node as a background process and record PID
+          $proc = Start-Process -FilePath node -ArgumentList 'index.js' -WorkingDirectory (Get-Location) -PassThru
+          $proc.Id | Out-File -FilePath ..\server.pid -Encoding ascii
+
+      - name: Wait for server (linux/macos)
+        if: runner.os != 'Windows'
         run: |
           for i in {1..30}; do
             if curl -sSf http://localhost:3000/api/debug/status; then echo 'server up'; break; fi
             sleep 2
           done
+
+      - name: Wait for server (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $up = $false
+          for ($i=0; $i -lt 30; $i++) {
+            try {
+              $r = Invoke-WebRequest -Uri 'http://localhost:3000/api/debug/status' -UseBasicParsing -TimeoutSec 2
+              if ($r.StatusCode -ge 200 -and $r.StatusCode -lt 300) { Write-Host 'server up'; $up = $true; break }
+            } catch { Start-Sleep -Seconds 2 }
+          }
+          if (-not $up) { Write-Host 'server did not become ready in time' }
 
       - name: Install E2E deps
         run: |
@@ -85,7 +130,16 @@ jobs:
             server.log
             e2e/failure-*.png
 
-      - name: Stop server
-        if: always()
+      - name: Stop server (linux/macos)
+        if: always() && runner.os != 'Windows'
         run: |
           if [ -f server.pid ]; then kill $(cat server.pid) || true; fi
+
+      - name: Stop server (windows)
+        if: always() && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (Test-Path ..\server.pid) {
+            $pid = Get-Content ..\server.pid
+            try { Stop-Process -Id $pid -ErrorAction SilentlyContinue } catch { }
+          }
