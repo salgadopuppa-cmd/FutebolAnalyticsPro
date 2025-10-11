@@ -73,7 +73,7 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           cd server
-          nohup node index.js > ../server.log 2>&1 &
+          nohup npm run start-ci > ../server.log 2>&1 &
           echo $! > server.pid
 
       - name: Start server in background (windows)
@@ -81,8 +81,8 @@ jobs:
         shell: pwsh
         run: |
           Set-Location server
-          # Start node as a background process and record PID
-          $proc = Start-Process -FilePath node -ArgumentList 'index.js' -WorkingDirectory (Get-Location) -PassThru
+          # Start npm run start-ci as a background process and record PID
+          $proc = Start-Process -FilePath npm -ArgumentList 'run','start-ci' -WorkingDirectory (Get-Location) -PassThru
           $proc.Id | Out-File -FilePath ..\server.pid -Encoding ascii
 
       - name: Wait for server (linux/macos)
