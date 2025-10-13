@@ -1,0 +1,49 @@
+name: Sync CODEOWNERS from reviewers.json
+
+on:
+  push:
+    paths:
+      - '.github/reviewers.json'
+  pull_request:
+    paths:
+      - '.github/reviewers.json'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install jq (for the action's convenience)
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Make sync script executable
+        run: |
+          chmod +x .github/scripts/sync-reviewers.js
+
+      - name: Generate CODEOWNERS
+        id: gen
+        run: |
+          node .github/scripts/sync-reviewers.js --write
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git status --porcelain | grep -q .; then
+            git add .github/CODEOWNERS
+            git commit -m "chore(ci): sync CODEOWNERS from reviewers.json"
+            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Report
+        run: |
+          echo "CODEOWNERS changed: ${{ steps.gen.outputs.changed }}"
