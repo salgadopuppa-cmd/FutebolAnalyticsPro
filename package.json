@@ -1,0 +1,13 @@
+{
+  "name": "futebol-analytics-pro",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "prepare": "husky install",
+    "sync:check": "node ./.github/scripts/sync-reviewers.js --check",
+    "sync:write": "node ./.github/scripts/sync-reviewers.js --write"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+}
