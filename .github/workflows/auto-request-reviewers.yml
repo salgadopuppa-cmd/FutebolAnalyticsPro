@@ -8,21 +8,41 @@ jobs:
   request-reviewers:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Read reviewers.json and set outputs
+        id: reviewers
+        run: |
+          if [ -f .github/reviewers.json ]; then
+            REVIEWERS=$(jq -c '.reviewers // []' .github/reviewers.json)
+            TEAM_REVIEWERS=$(jq -c '.team_reviewers // []' .github/reviewers.json)
+          else
+            REVIEWERS='[]'
+            TEAM_REVIEWERS='[]'
+          fi
+          echo "REVIEWERS_JSON=$REVIEWERS" >> $GITHUB_OUTPUT
+          echo "TEAM_REVIEWERS_JSON=$TEAM_REVIEWERS" >> $GITHUB_OUTPUT
+
       - name: Request reviewers
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = context.payload.pull_request.number;
-            const reviewersSecret = process.env.PR_REVIEWERS || '';
-            const teamReviewersSecret = process.env.PR_TEAM_REVIEWERS || '';
+            const reviewersRaw = process.env.REVIEWERS || '[]';
+            const teamReviewersRaw = process.env.TEAM_REVIEWERS || '[]';
 
-            const reviewers = reviewersSecret.split(',').map(s => s.trim()).filter(Boolean);
-            const team_reviewers = teamReviewersSecret.split(',').map(s => s.trim()).filter(Boolean);
+            let reviewers = [];
+            let team_reviewers = [];
+            try { reviewers = JSON.parse(reviewersRaw); } catch (e) { core.info('Failed to parse REVIEWERS'); }
+            try { team_reviewers = JSON.parse(teamReviewersRaw); } catch (e) { core.info('Failed to parse TEAM_REVIEWERS'); }
 
             if (reviewers.length === 0 && team_reviewers.length === 0) {
-              core.info('No reviewers configured in PR_REVIEWERS / PR_TEAM_REVIEWERS secrets; skipping.');
+              core.info('No reviewers configured in .github/reviewers.json; skipping.');
             } else {
-              github.rest.pulls.requestReviewers({
+              await github.rest.pulls.requestReviewers({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: prNumber,
@@ -32,5 +52,5 @@ jobs:
               core.info(`Requested reviewers: ${reviewers.join(', ')}; teams: ${team_reviewers.join(', ')}`);
             }
         env:
-          PR_REVIEWERS: ${{ secrets.PR_REVIEWERS }}
-          PR_TEAM_REVIEWERS: ${{ secrets.PR_TEAM_REVIEWERS }}
+          REVIEWERS: ${{ steps.reviewers.outputs.REVIEWERS_JSON }}
+          TEAM_REVIEWERS: ${{ steps.reviewers.outputs.TEAM_REVIEWERS_JSON }}
