@@ -32,8 +32,9 @@ jobs:
         if: ${{ failure() && github.event_name == 'pull_request' }}
         run: |
           set -e
-          # branch name using short SHA for idempotence
-          BRANCH=auto/codeowners-fix-${GITHUB_SHA::7}
+          # branch name using PR number for readability and idempotence
+          PR_NUM=${{ github.event.pull_request.number }}
+          BRANCH=auto/codeowners-fix-pr-${PR_NUM}
           echo "Creating branch $BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
