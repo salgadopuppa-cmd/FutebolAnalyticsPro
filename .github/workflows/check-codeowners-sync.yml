@@ -52,7 +52,7 @@ jobs:
             echo "PR_BASE=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV
           fi
 
-      - name: Create a fix PR (if branch created)
+      - name: Create a draft fix PR (if branch created)
         if: ${{ failure() && github.event_name == 'pull_request' && env.FIX_BRANCH != '' }}
         uses: actions/github-script@v7
         id: create_pr
@@ -68,12 +68,50 @@ jobs:
               head: branch,
               base: base,
               title: title,
-              body: body
+              body: body,
+              draft: true
             });
+            core.setOutput('pr_number', pr.data.number);
             core.setOutput('pr_url', pr.data.html_url);
         env:
           FIX_BRANCH: ${{ env.FIX_BRANCH }}
           PR_BASE: ${{ env.PR_BASE }}
+
+      - name: Add reviewers and labels to fix PR
+        if: ${{ failure() && github.event_name == 'pull_request' && env.FIX_BRANCH != '' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER || '${{ steps.create_pr.outputs.pr_number }}', 10);
+            // read reviewers.json from the checked-out repo
+            const fs = require('fs');
+            const path = '.github/reviewers.json';
+            let reviewers = [];
+            let team_reviewers = [];
+            if (fs.existsSync(path)){
+              try {
+                const j = JSON.parse(fs.readFileSync(path,'utf8'));
+                reviewers = j.reviewers || [];
+                team_reviewers = j.team_reviewers || [];
+              } catch(e){ core.info('failed to parse reviewers.json'); }
+            }
+            if (reviewers.length > 0 || team_reviewers.length > 0){
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                reviewers: reviewers,
+                team_reviewers: team_reviewers
+              });
+            }
+            // add labels
+            const labels = ['auto-sync', 'bot'];
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: labels
+            });
 
       - name: Comment on PR when out-of-sync
         if: ${{ failure() && github.event_name == 'pull_request' }}
