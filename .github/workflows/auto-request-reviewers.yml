@@ -1,0 +1,36 @@
+name: Auto-request reviewers
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  request-reviewers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request reviewers
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const reviewersSecret = process.env.PR_REVIEWERS || '';
+            const teamReviewersSecret = process.env.PR_TEAM_REVIEWERS || '';
+
+            const reviewers = reviewersSecret.split(',').map(s => s.trim()).filter(Boolean);
+            const team_reviewers = teamReviewersSecret.split(',').map(s => s.trim()).filter(Boolean);
+
+            if (reviewers.length === 0 && team_reviewers.length === 0) {
+              core.info('No reviewers configured in PR_REVIEWERS / PR_TEAM_REVIEWERS secrets; skipping.');
+            } else {
+              github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                reviewers: reviewers,
+                team_reviewers: team_reviewers
+              });
+              core.info(`Requested reviewers: ${reviewers.join(', ')}; teams: ${team_reviewers.join(', ')}`);
+            }
+        env:
+          PR_REVIEWERS: ${{ secrets.PR_REVIEWERS }}
+          PR_TEAM_REVIEWERS: ${{ secrets.PR_TEAM_REVIEWERS }}

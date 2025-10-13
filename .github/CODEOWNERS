@@ -1,0 +1,11 @@
+# Default CODEOWNERS for the repository
+# Replace the placeholders below with real GitHub usernames or team slugs.
+# Examples:
+#  - @org/review-team
+#  - @your-username
+
+# Owners for everything in the repo
+* @your-username
+
+# Owners for server code
+server/* @your-username
