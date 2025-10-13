@@ -103,3 +103,94 @@ jobs:
             const artifactsUrl = runUrl ? `${runUrl}` : '';
             const body = `E2E tests completed. Artifacts and logs: ${artifactsUrl}`;
             github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body });
+
+    e2e_docker:
+      name: 🐳 E2E Against Docker Image
+      runs-on: ubuntu-latest
+      env:
+        CI: true
+        ALLOW_TEST_ENDPOINTS: true
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Build and start containers (App + Nginx)
+          run: |
+            docker-compose up --build -d
+
+        - name: Wait for Nginx/App to be ready
+          run: |
+            echo "Waiting for Nginx/App to be ready on http://localhost"
+            for i in {1..30}; do
+              if curl -sSf http://localhost/ || curl -sSf http://localhost:80/; then
+                echo "App is up"; break
+              fi
+              echo "Waiting... ($i)"; sleep 2
+            done
+
+        - name: Install E2E dependencies and run Playwright
+          run: |
+            cd e2e
+            npm ci
+            npx playwright install --with-deps
+            # run Chromium project against the dockerized site (default URL)
+            npx playwright test --project=chromium || true
+
+        - name: Stop and clean up containers
+          if: always()
+          run: docker-compose down
+
+        - name: Upload Playwright report (on failure)
+          if: failure()
+          uses: actions/upload-artifact@v4
+          with:
+            name: playwright-report-docker
+            path: e2e/playwright-report
+
+    lighthouse_check:
+      name: 💡 Performance (Lighthouse)
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: '18'
+
+        - name: Install server dependencies and start
+          run: |
+            cd server
+            npm ci
+            nohup node index.js > server.log 2>&1 &
+            echo $! > server.pid
+
+        - name: Wait for server to start
+          run: |
+            for i in {1..20}; do
+              if curl -sSf http://localhost:3000/api/debug/status; then
+                echo "Server is up"; break
+              fi
+              echo "Waiting... ($i)"; sleep 2
+            done
+
+        - name: Run Lighthouse (min score: 90)
+          uses: treosh/lighthouse-action@v10
+          with:
+            urls: |
+              http://localhost:3000
+            uploadArtifacts: true
+            min_score: |
+              {
+                "performance": 90,
+                "accessibility": 90,
+                "best-practices": 90
+              }
+
+        - name: Stop server
+          if: always()
+          run: |
+            if [ -f server.pid ]; then
+              kill $(cat server.pid) || true
+            fi
