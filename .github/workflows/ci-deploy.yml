@@ -49,3 +49,12 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t fap:ci .
+
+  trivy-scan:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - uses: aquasecurity/trivy-action@v1
+        with:
+          image-ref: 'fap:ci'
+          format: 'table'

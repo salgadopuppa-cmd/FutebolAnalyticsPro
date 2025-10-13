@@ -61,10 +61,18 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
 // Serve static frontend (assumes server folder is inside project)
 app.use(express.static(path.join(__dirname, '..')));
 
-// Ensure data directory
-const DATA_DIR = path.join(__dirname, 'data');
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
-const DB_PATH = path.join(DATA_DIR, 'fap.db');
+// Configure DB path: support in-memory for tests via DB_IN_MEMORY or DB_PATH env
+let DB_PATH;
+if (process.env.DB_IN_MEMORY === 'true') {
+  DB_PATH = ':memory:';
+} else if (process.env.DB_PATH) {
+  DB_PATH = process.env.DB_PATH;
+} else {
+  // Ensure data directory
+  const DATA_DIR = path.join(__dirname, 'data');
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+  DB_PATH = path.join(DATA_DIR, 'fap.db');
+}
 
 // Initialize SQLite DB
 const db = new sqlite3.Database(DB_PATH);

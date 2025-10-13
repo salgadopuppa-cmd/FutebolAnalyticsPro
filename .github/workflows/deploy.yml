@@ -10,8 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build Docker image
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image to GHCR
         run: |
-          docker build -t ${{ github.repository }}:staging .
-      - name: Push to registry (placeholder)
-        run: echo "Implement registry push with secrets.DOCKER_REGISTRY and secrets.DOCKER_USERNAME"
+          IMAGE=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:staging
+          docker build -t $IMAGE .
+          docker push $IMAGE

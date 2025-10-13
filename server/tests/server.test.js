@@ -4,6 +4,7 @@ const path = require('path');
 
 // Ensure test DB path is isolated
 process.env.ALLOW_TEST_ENDPOINTS = 'true';
+process.env.DB_IN_MEMORY = 'true';
 const app = require('../index');
 
 describe('Server basic endpoints', () => {
