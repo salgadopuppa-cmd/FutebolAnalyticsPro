@@ -277,6 +277,13 @@ if (process.env.ALLOW_TEST_ENDPOINTS === 'true') {
 }
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Mock API server with SQLite running on http://localhost:${PORT}`);
-});
+
+// Export the app for tests or external runners
+module.exports = app;
+
+// If executed directly, start the server
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Mock API server with SQLite running on http://localhost:${PORT}`);
+  });
+}

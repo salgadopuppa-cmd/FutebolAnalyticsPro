@@ -23,6 +23,24 @@ Como executar localmente:
 
 4. Abra http://localhost:3000 no navegador para carregar o frontend (o servidor serve o frontend da pasta pai).
 
+Docker & CI
+----------------
+Build and run with Docker:
+
+   docker build -t fap:latest .
+   docker run -p 3000:3000 -v $(pwd)/server/data:/app/server/data fap:latest
+
+Or use docker-compose for nginx + app:
+
+   docker-compose up --build
+
+Run unit tests (server):
+
+   cd server
+   npm ci
+   npx jest
+
+
 Funcionalidades implementadas para desenvolvimento:
 - Endpoints mock: /api/auth, /api/coins, /api/featured-matches
 - Persistência básica de moedas no localStorage e sincronização com o mock backend quando consentido

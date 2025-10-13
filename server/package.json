@@ -8,6 +8,14 @@
     "start-ci": "node ./bin/start-ci.js",
     "stop-ci": "node ./bin/stop-ci.js"
   },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "supertest": "^6.3.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 10000
+  },
   "dependencies": {
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

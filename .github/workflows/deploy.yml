@@ -1,0 +1,17 @@
+name: Deploy (staging)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ github.repository }}:staging .
+      - name: Push to registry (placeholder)
+        run: echo "Implement registry push with secrets.DOCKER_REGISTRY and secrets.DOCKER_USERNAME"
