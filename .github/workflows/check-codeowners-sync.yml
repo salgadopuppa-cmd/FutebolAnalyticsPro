@@ -23,6 +23,35 @@ jobs:
           node-version: '18'
 
       - name: Run CODEOWNERS sync check
+        id: sync_check
+        continue-on-error: true
         run: |
           npm ci --no-audit --no-fund
           node .github/scripts/sync-reviewers.js --check
+
+      - name: Comment on PR when out-of-sync
+        if: ${{ failure() && github.event_name == 'pull_request' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ⚠️ The repository's `.github/CODEOWNERS` is out-of-sync with `.github/reviewers.json`.
+
+            To fix locally, run:
+
+            ```bash
+            npm ci --no-audit --no-fund
+            node .github/scripts/sync-reviewers.js --write
+            git add .github/CODEOWNERS
+            git commit -m "chore: sync CODEOWNERS from reviewers.json"
+            git push
+            ```
+
+            Alternatively, update `.github/reviewers.json` appropriately and open a PR.
+
+      - name: Fail if out-of-sync
+        if: ${{ failure() }}
+        run: |
+          echo "CODEOWNERS is out-of-sync with reviewers.json" >&2
+          exit 1
