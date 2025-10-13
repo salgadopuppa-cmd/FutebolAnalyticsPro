@@ -5,7 +5,7 @@
 #  - @your-username
 
 # Owners for everything in the repo
-* @your-username
+* @your-username @your-org/review-team
 
 # Owners for server code
-server/* @your-username
+server/* @your-username @your-org/review-team
