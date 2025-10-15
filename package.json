@@ -1,0 +1,34 @@
+{
+  "name": "futebolanalyticspro",
+  "version": "1.0.0",
+  "description": "Futebol Analytics Pro - Local Development Guide",
+  "main": "app.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "husky": "^8.0.3",
+    "express": "^4.18.2",
+    "cookie-parser": "^1.4.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "serve": "^14.2.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-server": "node server/server.js",
+    "start": "node server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/salgadopuppa-cmd/FutebolAnalyticsPro.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/salgadopuppa-cmd/FutebolAnalyticsPro/issues"
+  },
+  "homepage": "https://github.com/salgadopuppa-cmd/FutebolAnalyticsPro#readme"
+}
