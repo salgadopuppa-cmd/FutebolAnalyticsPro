@@ -41,7 +41,46 @@ function showToast(msg, opts={}){ const c=document.getElementById('toastContaine
 
 function getConsent(k){ try{ const raw=localStorage.getItem(CONSENT_KEY); if(!raw) return false; return !!JSON.parse(raw)[k]; }catch(e){return false;} }
 function setConsent(o){ try{ localStorage.setItem(CONSENT_KEY, JSON.stringify(o||{})); }catch(e){console.warn(e);} }
-window.acceptAllConsent = ()=>{ setConsent({analytics:true,ads:true,backend:true}); const b=document.getElementById('consentBanner'); if(b) b.style.display='none'; showToast('Consent saved'); };
+function lazyLoadAdSense() {
+  if (document.querySelector('script[data-consent-loaded="ads"]')) return;
+  const ph = document.querySelector('script[data-consent="ads"]');
+  if (ph) {
+    const s = document.createElement('script');
+    s.src = ph.getAttribute('data-src');
+    s.async = true;
+    s.setAttribute('data-consent-loaded', 'ads');
+    document.head.appendChild(s);
+  }
+}
+function lazyLoadGtag() {
+  if (document.querySelector('script[data-consent-loaded="analytics"]')) return;
+  const ph = document.querySelector('script[data-consent="analytics"]');
+  if (ph) {
+    const s = document.createElement('script');
+    s.src = ph.getAttribute('data-src');
+    s.async = true;
+    s.setAttribute('data-consent-loaded', 'analytics');
+    document.head.appendChild(s);
+    // Inline gtag init
+    const init = document.getElementById('gtag-init');
+    if (init) {
+      const inline = document.createElement('script');
+      inline.text = init.textContent;
+      inline.setAttribute('data-consent-loaded', 'analytics');
+      document.head.appendChild(inline);
+    }
+  }
+}
+function applyConsentScripts(consent) {
+  if (consent?.ads) lazyLoadAdSense();
+  if (consent?.analytics) lazyLoadGtag();
+}
+window.acceptAllConsent = ()=>{
+  const consent = {analytics:true,ads:true,backend:true};
+  setConsent(consent);
+  applyConsentScripts(consent);
+  const b=document.getElementById('consentBanner'); if(b) b.style.display='none'; showToast('Consent saved');
+};
 window.rejectAllConsent = ()=>{ setConsent({analytics:false,ads:false,backend:false}); const b=document.getElementById('consentBanner'); if(b) b.style.display='none'; showToast('Consent rejected'); };
 
 function generateTableHTML(data){ if(!Array.isArray(data)) return '<p>No data</p>'; let html='<table class="mini-table"><thead><tr><th>Pos</th><th>Team</th><th>Pts</th></tr></thead><tbody>'; data.forEach(r=> html+=`<tr><td>${r.pos}</td><td>${r.team}</td><td>${r.pts}</td></tr>`); html+='</tbody></table>'; return html; }
@@ -67,12 +106,19 @@ function navigateTo(pageId){ pages.forEach(p=>p.classList.remove('active')); con
 // Wiring
 document.addEventListener('DOMContentLoaded', ()=>{
   const cs=document.getElementById('consentSettingsBtn'); if(cs) cs.addEventListener('click', ()=>{ const m=document.getElementById('consentModal'); if(m) m.style.display='flex'; });
-  const sv=document.getElementById('saveConsentBtn'); if(sv) sv.addEventListener('click', ()=>{ const newC={ analytics: !!document.getElementById('cons_analytics')?.checked, ads: !!document.getElementById('cons_ads')?.checked, backend: !!document.getElementById('cons_backend')?.checked }; setConsent(newC); const m=document.getElementById('consentModal'); if(m) m.style.display='none'; showToast('Consent saved'); });
+  const sv=document.getElementById('saveConsentBtn'); if(sv) sv.addEventListener('click', ()=>{
+    const newC={ analytics: !!document.getElementById('cons_analytics')?.checked, ads: !!document.getElementById('cons_ads')?.checked, backend: !!document.getElementById('cons_backend')?.checked };
+    setConsent(newC);
+    applyConsentScripts(newC);
+    const m=document.getElementById('consentModal'); if(m) m.style.display='none'; showToast('Consent saved');
+  });
   const cancel=document.getElementById('cancelConsentBtn'); if(cancel) cancel.addEventListener('click', ()=>{ const m=document.getElementById('consentModal'); if(m) m.style.display='none'; });
   navButtons.forEach(b=> b.addEventListener('click', e=>{ e.preventDefault(); const id=b.getAttribute('data-page'); navigateTo(id); }));
   if(signInButton) signInButton.addEventListener('click', signIn); if(signOutButton) signOutButton.addEventListener('click', signOut);
   try{ const cfg=JSON.parse(localStorage.getItem('fap_firebase_cfg')||'null'); if(cfg) initFirebaseFromConfig(cfg); }catch(e){}
   showConsentBannerIfNeeded();
+  // On load, if consent exists, apply scripts
+  try{ const c=JSON.parse(localStorage.getItem(CONSENT_KEY)||'null'); if(c) applyConsentScripts(c); }catch(e){}
 });
 
 window.onload = ()=>{ const h=window.location.hash.substring(1); if(h && document.getElementById(h)) navigateTo(h); else navigateTo('home'); checkBackendStatus(); loadFeaturedMatches(); setInterval(updateMetrics,1000); loadCoinsFromStorage(); updateAuthState(false); if(userCoinsDisplay) userCoinsDisplay.textContent=userCoins; };
