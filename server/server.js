@@ -7,6 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 4173;
 
 app.use(cookieParser());
+app.use(express.json());
 
 // Serve static assets
 app.use(express.static(path.join(__dirname, '..')));
@@ -42,6 +43,24 @@ app.get(['/', '/index.html', '/home', '/*'], (req, res, next) => {
     res.set('Content-Type', 'text/html; charset=utf-8');
     res.send(out);
   });
+});
+
+// API endpoint to set consent cookie
+app.post('/api/consent', (req, res) => {
+  const consent = req.body;
+  if (!consent || typeof consent !== 'object') {
+    return res.status(400).json({ error: 'invalid consent payload' });
+  }
+
+  // Cookie options: in production you should set Secure and HttpOnly as needed.
+  const cookieOptions = {
+    maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
+    httpOnly: false, // client-side still reads localStorage; keep cookie readable for server injection
+    sameSite: 'Lax'
+  };
+
+  res.cookie('fap_user_consent_v1', JSON.stringify(consent), cookieOptions);
+  return res.json({ ok: true });
 });
 
 app.listen(PORT, () => {

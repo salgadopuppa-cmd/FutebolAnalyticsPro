@@ -75,6 +75,25 @@ function applyConsentScripts(consent) {
   if (consent?.ads) lazyLoadAdSense();
   if (consent?.analytics) lazyLoadGtag();
 }
+// Ensure showConsentBannerIfNeeded exists and is safe to call from DOMContentLoaded
+function showConsentBannerIfNeeded() {
+  try {
+    const raw = localStorage.getItem(CONSENT_KEY);
+    const consent = raw ? JSON.parse(raw) : null;
+    const b = document.getElementById('consentBanner');
+    // If no consent recorded, show the banner
+    if (!consent) {
+      if (b) b.style.display = 'block';
+      return;
+    }
+    // If consent exists, ensure scripts load for granted categories
+    if (consent) applyConsentScripts(consent);
+    if (b) b.style.display = 'none';
+  } catch (e) {
+    // fail silently
+    console.warn('showConsentBannerIfNeeded error', e);
+  }
+}
 window.acceptAllConsent = ()=>{
   const consent = {analytics:true,ads:true,backend:true};
   setConsent(consent);
@@ -108,9 +127,25 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const cs=document.getElementById('consentSettingsBtn'); if(cs) cs.addEventListener('click', ()=>{ const m=document.getElementById('consentModal'); if(m) m.style.display='flex'; });
   const sv=document.getElementById('saveConsentBtn'); if(sv) sv.addEventListener('click', ()=>{
     const newC={ analytics: !!document.getElementById('cons_analytics')?.checked, ads: !!document.getElementById('cons_ads')?.checked, backend: !!document.getElementById('cons_backend')?.checked };
+    // Persist locally
     setConsent(newC);
-    applyConsentScripts(newC);
-    const m=document.getElementById('consentModal'); if(m) m.style.display='none'; showToast('Consent saved');
+    // Try to persist server-side (sets cookie for server-side injection)
+    fetch('/api/consent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newC)
+    }).then(r=>{
+      if(!r.ok) throw new Error('server rejected consent');
+      return r.json();
+    }).then(()=>{
+      applyConsentScripts(newC);
+      const m=document.getElementById('consentModal'); if(m) m.style.display='none'; showToast('Consent saved');
+    }).catch(err=>{
+      console.warn('Failed to persist consent to server', err);
+      // Fallback: still apply and inform the user
+      applyConsentScripts(newC);
+      const m=document.getElementById('consentModal'); if(m) m.style.display='none'; showToast('Consent saved locally (server unavailable)');
+    });
   });
   const cancel=document.getElementById('cancelConsentBtn'); if(cancel) cancel.addEventListener('click', ()=>{ const m=document.getElementById('consentModal'); if(m) m.style.display='none'; });
   navButtons.forEach(b=> b.addEventListener('click', e=>{ e.preventDefault(); const id=b.getAttribute('data-page'); navigateTo(id); }));
