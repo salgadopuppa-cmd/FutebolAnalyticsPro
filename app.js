@@ -118,6 +118,39 @@ window.endGame = ()=>{ saveCoinsToStorage(); showToast('Game ended'); if(gameCon
 function updateMetrics(){ const s=Math.floor((Date.now()-startTime)/1000); engagementScore = Math.min((interactionsCount*1.5)+(gamesPlayedCount*3)+(s/120),10); const se=document.getElementById('sessionTime'); if(se) se.textContent=`${s}s`; const ie=document.getElementById('interactions'); if(ie) ie.textContent=interactionsCount; const ge=document.getElementById('gamesPlayed'); if(ge) ge.textContent=gamesPlayedCount; const eng=document.getElementById('engagementScore'); if(eng) eng.textContent=engagementScore.toFixed(2); }
 
 function loadFeaturedMatches(){ if(featuredMatchesDiv) featuredMatchesDiv.innerHTML = '<h3>Próximos Jogos</h3>' + generateTableHTML(CLASSIFICATION_DATA.serieA); }
+// --- Real data loaders (call backend proxy endpoints) ---
+async function loadSerieAReal(){
+  try{
+    const res = await fetch('/api/sports/brasileirao-tabela');
+    const data = await res.json();
+    const standings = data.response?.[0]?.league?.standings?.[0];
+    if(!standings) { document.getElementById('serieATable').innerHTML = '<p>Nenhum dado disponível.</p>'; return; }
+    let html = `<table class="mini-table"><thead><tr><th>Pos</th><th>Time</th><th>Pts</th></tr></thead><tbody>`;
+    standings.forEach(team=>{
+      html += `<tr><td>${team.rank}</td><td><img src="${team.team.logo}" style="height:18px;vertical-align:middle;margin-right:6px"> ${team.team.name}</td><td>${team.points}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    const el = document.getElementById('serieATable'); if(el) el.innerHTML = html;
+  }catch(e){ console.warn(e); const el=document.getElementById('serieATable'); if(el) el.innerHTML = '<p>Erro ao carregar classificações.</p>'; }
+}
+
+async function loadArtilheiros(){
+  try{
+    const res = await fetch('/api/sports/brasileirao-artilheiros');
+    const data = await res.json();
+    const list = data.response || [];
+    let html = `<table class="mini-table"><thead><tr><th>Jogador</th><th>Time</th><th>Gols</th></tr></thead><tbody>`;
+    list.forEach(p=>{
+      const player = p.player || {};
+      const stats = p.statistics?.[0] || {};
+      const team = stats.team || {};
+      const goals = stats.goals?.total ?? '-';
+      html += `<tr><td><img src="${player.photo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${player.name}</td><td><img src="${team.logo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${team.name||''}</td><td>${goals}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    const el = document.getElementById('artilheirosTable'); if(el) el.innerHTML = html;
+  }catch(e){ console.warn(e); const el=document.getElementById('artilheirosTable'); if(el) el.innerHTML = '<p>Erro ao carregar artilheiros.</p>'; }
+}
 function checkBackendStatus(){ if(backendStatusText) backendStatusText.textContent='Servidor Online'; if(backendStatusIndicator) { backendStatusIndicator.classList.remove('status-loading'); backendStatusIndicator.classList.add('status-online'); } }
 
 function navigateTo(pageId){ pages.forEach(p=>p.classList.remove('active')); const t=document.getElementById(pageId); if(t) t.classList.add('active'); navButtons.forEach(b=> b.getAttribute('data-page')===pageId? b.classList.add('active'): b.classList.remove('active')); history.pushState(null,null,`#${pageId}`); }

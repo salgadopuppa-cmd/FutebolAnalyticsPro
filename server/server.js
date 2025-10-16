@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
 
+require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 4173;
 
@@ -11,6 +12,14 @@ app.use(express.json());
 
 // Serve static assets
 app.use(express.static(path.join(__dirname, '..')));
+
+// Mount sports API proxy
+try {
+  const sportsProxy = require('./api-football-proxy');
+  app.use('/api/sports', sportsProxy);
+} catch (e) {
+  console.warn('sports proxy not available', e.message);
+}
 
 // Middleware to inject GA/AdSense if consent cookie present
 app.get(['/', '/index.html', '/home', '/*'], (req, res, next) => {
