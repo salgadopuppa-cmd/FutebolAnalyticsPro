@@ -297,7 +297,7 @@ function applyConsentDecisions() {
 // Hook into consent acceptance to load scripts
 const originalAcceptAllConsent = window.acceptAllConsent;
 window.acceptAllConsent = function() {
-    originalAcceptAllConsent();
+    if (originalAcceptAllConsent) originalAcceptAllConsent();
     applyConsentDecisions();
 }
 
@@ -545,9 +545,6 @@ window.loadSudamericanaData = loadSudamericanaData;
 window.loadUCLData = loadUCLData;
 window.loadUELData = loadUELData;
 window.loadUEConfData = loadUEConfData;
-
-// also expose for console
-window.debugShowCurrentUser = debugShowCurrentUser;
 
 // Dynamically load Firebase SDK and init
 function loadFirebaseSdk(callback) {
