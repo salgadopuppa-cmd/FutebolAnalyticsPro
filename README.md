@@ -7,9 +7,12 @@ Estrutura relevante:
 - app.js
 - style.css
 - server/
-  - index.js (mock API)
+  - server.js (mock API)
   - package.json
-  - README.md
+- games/
+  - precisao.js
+  - goleiro.js
+  - ranking.js
 
 Como executar localmente:
 1. Abra um terminal e navegue até `FutebolAnalyticsPro/server`.
@@ -17,17 +20,18 @@ Como executar localmente:
 
    npm install
 
-3. Inicie o mock server:
+3. Inicie o mock server (executa server/server.js):
 
    npm start
 
 4. Abra http://localhost:3000 no navegador para carregar o frontend (o servidor serve o frontend da pasta pai).
 
 Funcionalidades implementadas para desenvolvimento:
-- Endpoints mock: /api/auth, /api/coins, /api/featured-matches
+- Endpoints mock: /api/health, /api/sports/:league-tabela, /api/sports/:league-artilheiros, /api/sports/:league-proximos
+- Suporte para múltiplas ligas: premier, laliga, seriea-ita, libertadores, sudamericana, ucl, uel, ueconf, brasileirao, brasileirao-b, copadobrasil
+- Jogos interativos em games/: precisao.js, goleiro.js, ranking.js (carregáveis via dynamic import)
 - Persistência básica de moedas no localStorage e sincronização com o mock backend quando consentido
 - Banner simples de consentimento (CMP) para Ads / Analytics / Backend
-- Placeholders comentados para Prebid.js (header bidding) e instruções no server/README.md
 
 Próximos passos recomendados:
 - Substituir mock auth por OAuth real ou Firebase Auth.
