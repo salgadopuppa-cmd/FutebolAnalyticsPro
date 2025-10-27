@@ -222,6 +222,333 @@ document.addEventListener('DOMContentLoaded', () => {
 // also expose for console
 window.debugShowCurrentUser = debugShowCurrentUser;
 
+// ===============================================
+// Lazy-Loading Helpers for Consent-Gated Scripts
+// ===============================================
+
+/**
+ * Lazy-load Google Analytics (gtag.js) after consent is granted
+ */
+function lazyLoadGtag() {
+    if (!getConsent('analytics')) {
+        console.log('Analytics consent not granted. Skipping gtag.js load.');
+        return;
+    }
+    
+    // Check if already loaded
+    if (window.gtag && window.dataLayer) {
+        console.log('Google Analytics already loaded.');
+        return;
+    }
+    
+    // Find the placeholder script with data-consent="analytics"
+    const gtagPlaceholder = document.querySelector('script[data-consent="analytics"][data-src]');
+    if (gtagPlaceholder && gtagPlaceholder.dataset.src) {
+        const scriptTag = document.createElement('script');
+        scriptTag.async = true;
+        scriptTag.src = gtagPlaceholder.dataset.src;
+        document.head.appendChild(scriptTag);
+        console.log('Google Analytics gtag.js loaded after consent.');
+    }
+    
+    // Execute the inline gtag init script
+    const gtagInit = document.getElementById('gtag-init');
+    if (gtagInit && gtagInit.textContent) {
+        const initScript = document.createElement('script');
+        initScript.textContent = gtagInit.textContent;
+        document.head.appendChild(initScript);
+        console.log('Google Analytics initialized after consent.');
+    }
+}
+
+/**
+ * Lazy-load Google AdSense after consent is granted
+ */
+function lazyLoadAdSense() {
+    if (!getConsent('ads')) {
+        console.log('Ads consent not granted. Skipping AdSense load.');
+        return;
+    }
+    
+    // Check if already loaded
+    if (window.adsbygoogle) {
+        console.log('AdSense already loaded.');
+        return;
+    }
+    
+    // Find the placeholder script with data-consent="ads"
+    const adsPlaceholder = document.querySelector('script[data-consent="ads"][data-src]');
+    if (adsPlaceholder && adsPlaceholder.dataset.src) {
+        const scriptTag = document.createElement('script');
+        scriptTag.async = true;
+        scriptTag.src = adsPlaceholder.dataset.src;
+        scriptTag.crossOrigin = 'anonymous';
+        document.head.appendChild(scriptTag);
+        console.log('Google AdSense loaded after consent.');
+    }
+}
+
+// Call lazy-loaders when consent is updated
+function applyConsentDecisions() {
+    lazyLoadGtag();
+    lazyLoadAdSense();
+}
+
+// Hook into consent acceptance to load scripts
+const originalAcceptAllConsent = window.acceptAllConsent;
+window.acceptAllConsent = function() {
+    originalAcceptAllConsent();
+    applyConsentDecisions();
+}
+
+// ===============================================
+// League Data Loaders for International Competitions
+// ===============================================
+
+/**
+ * Load Premier League data
+ */
+function loadPremierLeagueData() {
+    const tableDiv = document.getElementById('premierTable');
+    const scorersDiv = document.getElementById('premierTopScorers');
+    
+    // Simulate loading data (replace with actual API call in production)
+    setTimeout(() => {
+        const mockData = [
+            { pos: 1, team: 'Manchester City', pts: 75, status: 'Champions' },
+            { pos: 2, team: 'Arsenal', pts: 72, status: 'Champions League' },
+            { pos: 3, team: 'Liverpool', pts: 68, status: 'Champions League' },
+            { pos: 4, team: 'Aston Villa', pts: 65, status: 'Champions League' },
+        ];
+        tableDiv.innerHTML = generateTableHTML(mockData);
+        
+        const mockScorers = [
+            { pos: 1, player: 'Erling Haaland', team: 'Man City', goals: 27 },
+            { pos: 2, player: 'Cole Palmer', team: 'Chelsea', goals: 20 },
+            { pos: 3, player: 'Alexander Isak', team: 'Newcastle', goals: 19 },
+        ];
+        scorersDiv.innerHTML = generateScorersHTML(mockScorers);
+    }, 800);
+}
+
+/**
+ * Load La Liga data
+ */
+function loadLaLigaData() {
+    const tableDiv = document.getElementById('laligaTable');
+    const scorersDiv = document.getElementById('laligaTopScorers');
+    
+    setTimeout(() => {
+        const mockData = [
+            { pos: 1, team: 'Real Madrid', pts: 78, status: 'Champions' },
+            { pos: 2, team: 'Barcelona', pts: 74, status: 'Champions League' },
+            { pos: 3, team: 'Atlético Madrid', pts: 68, status: 'Champions League' },
+            { pos: 4, team: 'Athletic Bilbao', pts: 62, status: 'Champions League' },
+        ];
+        tableDiv.innerHTML = generateTableHTML(mockData);
+        
+        const mockScorers = [
+            { pos: 1, player: 'Jude Bellingham', team: 'Real Madrid', goals: 23 },
+            { pos: 2, player: 'Robert Lewandowski', team: 'Barcelona', goals: 21 },
+            { pos: 3, player: 'Antoine Griezmann', team: 'Atlético', goals: 18 },
+        ];
+        scorersDiv.innerHTML = generateScorersHTML(mockScorers);
+    }, 800);
+}
+
+/**
+ * Load Serie A (Italy) data
+ */
+function loadSerieAItaData() {
+    const tableDiv = document.getElementById('serieaItaTable');
+    const scorersDiv = document.getElementById('serieaItaTopScorers');
+    
+    setTimeout(() => {
+        const mockData = [
+            { pos: 1, team: 'Inter Milan', pts: 80, status: 'Champions' },
+            { pos: 2, team: 'AC Milan', pts: 72, status: 'Champions League' },
+            { pos: 3, team: 'Juventus', pts: 69, status: 'Champions League' },
+            { pos: 4, team: 'Napoli', pts: 66, status: 'Champions League' },
+        ];
+        tableDiv.innerHTML = generateTableHTML(mockData);
+        
+        const mockScorers = [
+            { pos: 1, player: 'Lautaro Martínez', team: 'Inter', goals: 24 },
+            { pos: 2, player: 'Victor Osimhen', team: 'Napoli', goals: 22 },
+            { pos: 3, player: 'Dušan Vlahović', team: 'Juventus', goals: 19 },
+        ];
+        scorersDiv.innerHTML = generateScorersHTML(mockScorers);
+    }, 800);
+}
+
+/**
+ * Load CONMEBOL Libertadores data
+ */
+function loadLibertadoresData() {
+    const tableDiv = document.getElementById('libertadoresTable');
+    const scorersDiv = document.getElementById('libertadoresTopScorers');
+    
+    setTimeout(() => {
+        const mockData = [
+            { pos: 1, team: 'Fluminense', pts: 15, status: 'Classificado' },
+            { pos: 2, team: 'Boca Juniors', pts: 13, status: 'Classificado' },
+            { pos: 3, team: 'River Plate', pts: 11, status: 'Em disputa' },
+            { pos: 4, team: 'Palmeiras', pts: 10, status: 'Em disputa' },
+        ];
+        tableDiv.innerHTML = generateTableHTML(mockData);
+        
+        const mockScorers = [
+            { pos: 1, player: 'Germán Cano', team: 'Fluminense', goals: 8 },
+            { pos: 2, player: 'Rony', team: 'Palmeiras', goals: 7 },
+            { pos: 3, player: 'Borja', team: 'River Plate', goals: 6 },
+        ];
+        scorersDiv.innerHTML = generateScorersHTML(mockScorers);
+    }, 800);
+}
+
+/**
+ * Load CONMEBOL Sudamericana data
+ */
+function loadSudamericanaData() {
+    const tableDiv = document.getElementById('sudamericanaTable');
+    const scorersDiv = document.getElementById('sudamericanaTopScorers');
+    
+    setTimeout(() => {
+        const mockData = [
+            { pos: 1, team: 'LDU Quito', pts: 14, status: 'Classificado' },
+            { pos: 2, team: 'Fortaleza', pts: 12, status: 'Classificado' },
+            { pos: 3, team: 'Racing', pts: 10, status: 'Em disputa' },
+            { pos: 4, team: 'Independiente del Valle', pts: 9, status: 'Em disputa' },
+        ];
+        tableDiv.innerHTML = generateTableHTML(mockData);
+        
+        const mockScorers = [
+            { pos: 1, player: 'Lucero', team: 'Fortaleza', goals: 7 },
+            { pos: 2, player: 'Paolo Guerrero', team: 'Racing', goals: 6 },
+            { pos: 3, player: 'Díaz', team: 'LDU', goals: 5 },
+        ];
+        scorersDiv.innerHTML = generateScorersHTML(mockScorers);
+    }, 800);
+}
+
+/**
+ * Load UEFA Champions League data
+ */
+function loadUCLData() {
+    const tableDiv = document.getElementById('uclTable');
+    const scorersDiv = document.getElementById('uclTopScorers');
+    
+    setTimeout(() => {
+        const mockData = [
+            { pos: 1, team: 'Bayern Munich', pts: 16, status: 'Classificado' },
+            { pos: 2, team: 'Manchester City', pts: 15, status: 'Classificado' },
+            { pos: 3, team: 'Real Madrid', pts: 14, status: 'Classificado' },
+            { pos: 4, team: 'Inter Milan', pts: 13, status: 'Classificado' },
+        ];
+        tableDiv.innerHTML = generateTableHTML(mockData);
+        
+        const mockScorers = [
+            { pos: 1, player: 'Harry Kane', team: 'Bayern', goals: 12 },
+            { pos: 2, player: 'Kylian Mbappé', team: 'PSG', goals: 10 },
+            { pos: 3, player: 'Erling Haaland', team: 'Man City', goals: 9 },
+        ];
+        scorersDiv.innerHTML = generateScorersHTML(mockScorers);
+    }, 800);
+}
+
+/**
+ * Load UEFA Europa League data
+ */
+function loadUELData() {
+    const tableDiv = document.getElementById('uelTable');
+    const scorersDiv = document.getElementById('uelTopScorers');
+    
+    setTimeout(() => {
+        const mockData = [
+            { pos: 1, team: 'Liverpool', pts: 15, status: 'Classificado' },
+            { pos: 2, team: 'Bayer Leverkusen', pts: 14, status: 'Classificado' },
+            { pos: 3, team: 'Roma', pts: 13, status: 'Classificado' },
+            { pos: 4, team: 'Brighton', pts: 12, status: 'Classificado' },
+        ];
+        tableDiv.innerHTML = generateTableHTML(mockData);
+        
+        const mockScorers = [
+            { pos: 1, player: 'Victor Boniface', team: 'Leverkusen', goals: 8 },
+            { pos: 2, player: 'Mohamed Salah', team: 'Liverpool', goals: 7 },
+            { pos: 3, player: 'Romelu Lukaku', team: 'Roma', goals: 6 },
+        ];
+        scorersDiv.innerHTML = generateScorersHTML(mockScorers);
+    }, 800);
+}
+
+/**
+ * Load UEFA Conference League data
+ */
+function loadUEConfData() {
+    const tableDiv = document.getElementById('ueconfTable');
+    const scorersDiv = document.getElementById('ueconfTopScorers');
+    
+    setTimeout(() => {
+        const mockData = [
+            { pos: 1, team: 'Aston Villa', pts: 14, status: 'Classificado' },
+            { pos: 2, team: 'Olympiacos', pts: 13, status: 'Classificado' },
+            { pos: 3, team: 'Club Brugge', pts: 12, status: 'Classificado' },
+            { pos: 4, team: 'Fenerbahçe', pts: 11, status: 'Classificado' },
+        ];
+        tableDiv.innerHTML = generateTableHTML(mockData);
+        
+        const mockScorers = [
+            { pos: 1, player: 'Ollie Watkins', team: 'Aston Villa', goals: 7 },
+            { pos: 2, player: 'El Kaabi', team: 'Olympiacos', goals: 6 },
+            { pos: 3, player: 'Dzeko', team: 'Fenerbahçe', goals: 5 },
+        ];
+        scorersDiv.innerHTML = generateScorersHTML(mockScorers);
+    }, 800);
+}
+
+/**
+ * Helper function to generate top scorers table HTML
+ */
+function generateScorersHTML(data) {
+    let html = `
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95em;">
+            <thead>
+                <tr style="background-color: #34495e;">
+                    <th style="padding: 12px;">Pos.</th>
+                    <th style="padding: 12px;">Jogador</th>
+                    <th style="padding: 12px;">Time</th>
+                    <th style="padding: 12px;">Gols</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    data.forEach(row => {
+        html += `
+            <tr style="border-bottom: 1px solid #4a4a4a;">
+                <td style="padding: 10px;">${row.pos}</td>
+                <td style="padding: 10px; font-weight: bold;">${row.player}</td>
+                <td style="padding: 10px;">${row.team}</td>
+                <td style="padding: 10px; color: #f1c40f; font-weight: 500;">⚽ ${row.goals}</td>
+            </tr>
+        `;
+    });
+    html += `</tbody></table>`;
+    return html;
+}
+
+// Expose league loader functions globally
+window.loadPremierLeagueData = loadPremierLeagueData;
+window.loadLaLigaData = loadLaLigaData;
+window.loadSerieAItaData = loadSerieAItaData;
+window.loadLibertadoresData = loadLibertadoresData;
+window.loadSudamericanaData = loadSudamericanaData;
+window.loadUCLData = loadUCLData;
+window.loadUELData = loadUELData;
+window.loadUEConfData = loadUEConfData;
+
+// also expose for console
+window.debugShowCurrentUser = debugShowCurrentUser;
+
 // Dynamically load Firebase SDK and init
 function loadFirebaseSdk(callback) {
     if (window.firebase && firebase.auth) return callback && callback();
@@ -646,6 +973,34 @@ function navigateTo(pageId) {
     });
 
     history.pushState(null, null, `#${pageId}`);
+    
+    // Lazy-load competition data when navigating to competition pages
+    switch(pageId) {
+        case 'premier':
+            loadPremierLeagueData();
+            break;
+        case 'laliga':
+            loadLaLigaData();
+            break;
+        case 'seriea-ita':
+            loadSerieAItaData();
+            break;
+        case 'libertadores':
+            loadLibertadoresData();
+            break;
+        case 'sudamericana':
+            loadSudamericanaData();
+            break;
+        case 'ucl':
+            loadUCLData();
+            break;
+        case 'uel':
+            loadUELData();
+            break;
+        case 'ueconf':
+            loadUEConfData();
+            break;
+    }
 }
 
 navButtons.forEach(button => {
@@ -687,6 +1042,9 @@ window.onload = () => {
     // Ao carregar a página, restaura moedas caso usuário já as tenha
     loadCoinsFromStorage();
     userCoinsDisplay.textContent = userCoins;
+    
+    // Apply consent decisions on page load (lazy-load scripts if consent already granted)
+    applyConsentDecisions();
 };
 
 // Expondo as funções para uso no HTML (onclick)
