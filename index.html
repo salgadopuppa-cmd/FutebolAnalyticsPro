@@ -34,15 +34,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="manifest" href="/site.webmanifest">
     
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-    <script>
+    <script type="text/plain" data-consent="analytics" data-src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script type="text/plain" id="gtag-init" data-consent="analytics">
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'GA_MEASUREMENT_ID');
     </script>
     
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=PUB_ID" crossorigin="anonymous"></script>
+    <script type="text/plain" data-consent="ads" data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=PUB_ID" crossorigin="anonymous"></script>
     
     <link rel="stylesheet" href="style.css">
     
@@ -138,6 +138,46 @@
             <li role="none">
                 <a href="#contact" class="nav-btn" data-page="contact" role="menuitem" aria-label="Entrar em contato">
                     📞 Contato
+                </a>
+            </li>
+            <li role="none">
+                <a href="#premier" class="nav-btn" data-page="premier" role="menuitem" aria-label="Ver Premier League">
+                    🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League
+                </a>
+            </li>
+            <li role="none">
+                <a href="#laliga" class="nav-btn" data-page="laliga" role="menuitem" aria-label="Ver La Liga">
+                    🇪🇸 La Liga
+                </a>
+            </li>
+            <li role="none">
+                <a href="#seriea-ita" class="nav-btn" data-page="seriea-ita" role="menuitem" aria-label="Ver Serie A">
+                    🇮🇹 Serie A
+                </a>
+            </li>
+            <li role="none">
+                <a href="#libertadores" class="nav-btn" data-page="libertadores" role="menuitem" aria-label="Ver CONMEBOL Libertadores">
+                    🏆 Libertadores
+                </a>
+            </li>
+            <li role="none">
+                <a href="#sudamericana" class="nav-btn" data-page="sudamericana" role="menuitem" aria-label="Ver CONMEBOL Sudamericana">
+                    🥈 Sudamericana
+                </a>
+            </li>
+            <li role="none">
+                <a href="#ucl" class="nav-btn" data-page="ucl" role="menuitem" aria-label="Ver UEFA Champions League">
+                    ⭐ Champions League
+                </a>
+            </li>
+            <li role="none">
+                <a href="#uel" class="nav-btn" data-page="uel" role="menuitem" aria-label="Ver UEFA Europa League">
+                    🌟 Europa League
+                </a>
+            </li>
+            <li role="none">
+                <a href="#ueconf" class="nav-btn" data-page="ueconf" role="menuitem" aria-label="Ver UEFA Conference League">
+                    🌠 Conference League
                 </a>
             </li>
         </ul>
@@ -564,6 +604,198 @@
                 
                 <h3>Simulação e Diversão</h3>
                 <p>Os "palpites" e os jogos são baseados em simulação e destinados à diversão e aprendizado estatístico.</p>
+            </div>
+        </section>
+
+        <section id="premier" class="page" aria-label="Página da Premier League">
+            <h2>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (Inglaterra)</h2>
+            
+            <h3>📊 Classificação</h3>
+            <div id="premierTable" class="table-container" role="region" aria-label="Classificação da Premier League">
+                <div class="loading" role="status" aria-label="Carregando classificação da Premier League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da Premier League...</p>
+                </div>
+            </div>
+
+            <h3>⚽ Artilheiros</h3>
+            <div id="premierTopScorers" class="table-container" role="region" aria-label="Artilheiros da Premier League">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Premier League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+
+            <div class="adsense-space" role="complementary" aria-label="Espaço publicitário">
+                Espaço para Banner AdSense 728x90
+            </div>
+        </section>
+
+        <section id="laliga" class="page" aria-label="Página da La Liga">
+            <h2>🇪🇸 La Liga (Espanha)</h2>
+            
+            <h3>📊 Classificação</h3>
+            <div id="laligaTable" class="table-container" role="region" aria-label="Classificação da La Liga">
+                <div class="loading" role="status" aria-label="Carregando classificação da La Liga">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da La Liga...</p>
+                </div>
+            </div>
+
+            <h3>⚽ Artilheiros</h3>
+            <div id="laligaTopScorers" class="table-container" role="region" aria-label="Artilheiros da La Liga">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da La Liga">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+
+            <div class="adsense-space" role="complementary" aria-label="Espaço publicitário">
+                Espaço para Banner AdSense 728x90
+            </div>
+        </section>
+
+        <section id="seriea-ita" class="page" aria-label="Página da Serie A">
+            <h2>🇮🇹 Serie A (Itália)</h2>
+            
+            <h3>📊 Classificação</h3>
+            <div id="serieaItaTable" class="table-container" role="region" aria-label="Classificação da Serie A">
+                <div class="loading" role="status" aria-label="Carregando classificação da Serie A">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da Serie A...</p>
+                </div>
+            </div>
+
+            <h3>⚽ Artilheiros</h3>
+            <div id="serieaItaTopScorers" class="table-container" role="region" aria-label="Artilheiros da Serie A">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Serie A">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+
+            <div class="adsense-space" role="complementary" aria-label="Espaço publicitário">
+                Espaço para Banner AdSense 728x90
+            </div>
+        </section>
+
+        <section id="libertadores" class="page" aria-label="Página da CONMEBOL Libertadores">
+            <h2>🏆 CONMEBOL Libertadores</h2>
+            
+            <h3>📊 Fase Atual</h3>
+            <div id="libertadoresTable" class="table-container" role="region" aria-label="Tabela da Libertadores">
+                <div class="loading" role="status" aria-label="Carregando tabela da Libertadores">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando tabela da Libertadores...</p>
+                </div>
+            </div>
+
+            <h3>⚽ Artilheiros</h3>
+            <div id="libertadoresTopScorers" class="table-container" role="region" aria-label="Artilheiros da Libertadores">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Libertadores">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+
+            <div class="adsense-space" role="complementary" aria-label="Espaço publicitário">
+                Espaço para Banner AdSense 728x90
+            </div>
+        </section>
+
+        <section id="sudamericana" class="page" aria-label="Página da CONMEBOL Sudamericana">
+            <h2>🥈 CONMEBOL Sudamericana</h2>
+            
+            <h3>📊 Fase Atual</h3>
+            <div id="sudamericanaTable" class="table-container" role="region" aria-label="Tabela da Sudamericana">
+                <div class="loading" role="status" aria-label="Carregando tabela da Sudamericana">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando tabela da Sudamericana...</p>
+                </div>
+            </div>
+
+            <h3>⚽ Artilheiros</h3>
+            <div id="sudamericanaTopScorers" class="table-container" role="region" aria-label="Artilheiros da Sudamericana">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Sudamericana">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+
+            <div class="adsense-space" role="complementary" aria-label="Espaço publicitário">
+                Espaço para Banner AdSense 728x90
+            </div>
+        </section>
+
+        <section id="ucl" class="page" aria-label="Página da UEFA Champions League">
+            <h2>⭐ UEFA Champions League</h2>
+            
+            <h3>📊 Fase Atual</h3>
+            <div id="uclTable" class="table-container" role="region" aria-label="Tabela da Champions League">
+                <div class="loading" role="status" aria-label="Carregando tabela da Champions League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando tabela da Champions League...</p>
+                </div>
+            </div>
+
+            <h3>⚽ Artilheiros</h3>
+            <div id="uclTopScorers" class="table-container" role="region" aria-label="Artilheiros da Champions League">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Champions League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+
+            <div class="adsense-space" role="complementary" aria-label="Espaço publicitário">
+                Espaço para Banner AdSense 728x90
+            </div>
+        </section>
+
+        <section id="uel" class="page" aria-label="Página da UEFA Europa League">
+            <h2>🌟 UEFA Europa League</h2>
+            
+            <h3>📊 Fase Atual</h3>
+            <div id="uelTable" class="table-container" role="region" aria-label="Tabela da Europa League">
+                <div class="loading" role="status" aria-label="Carregando tabela da Europa League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando tabela da Europa League...</p>
+                </div>
+            </div>
+
+            <h3>⚽ Artilheiros</h3>
+            <div id="uelTopScorers" class="table-container" role="region" aria-label="Artilheiros da Europa League">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Europa League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+
+            <div class="adsense-space" role="complementary" aria-label="Espaço publicitário">
+                Espaço para Banner AdSense 728x90
+            </div>
+        </section>
+
+        <section id="ueconf" class="page" aria-label="Página da UEFA Conference League">
+            <h2>🌠 UEFA Conference League</h2>
+            
+            <h3>📊 Fase Atual</h3>
+            <div id="ueconfTable" class="table-container" role="region" aria-label="Tabela da Conference League">
+                <div class="loading" role="status" aria-label="Carregando tabela da Conference League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando tabela da Conference League...</p>
+                </div>
+            </div>
+
+            <h3>⚽ Artilheiros</h3>
+            <div id="ueconfTopScorers" class="table-container" role="region" aria-label="Artilheiros da Conference League">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Conference League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+
+            <div class="adsense-space" role="complementary" aria-label="Espaço publicitário">
+                Espaço para Banner AdSense 728x90
             </div>
         </section>
 
