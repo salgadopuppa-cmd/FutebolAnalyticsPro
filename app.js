@@ -1,4 +1,236 @@
 // ===============================================
+// Consent-gated Script Loading
+// ===============================================
+
+/**
+ * Lazy-load Google Analytics (gtag.js) after user consent
+ */
+function lazyLoadGtag() {
+    const gtagScripts = document.querySelectorAll('script[data-consent="analytics"]');
+    gtagScripts.forEach(script => {
+        if (script.hasAttribute('data-src')) {
+            const newScript = document.createElement('script');
+            newScript.async = true;
+            newScript.src = script.getAttribute('data-src');
+            document.head.appendChild(newScript);
+        } else if (script.textContent) {
+            const newScript = document.createElement('script');
+            newScript.textContent = script.textContent;
+            document.head.appendChild(newScript);
+        }
+    });
+}
+
+/**
+ * Lazy-load AdSense scripts after user consent
+ */
+function lazyLoadAdSense() {
+    const adsScripts = document.querySelectorAll('script[data-consent="ads"]');
+    adsScripts.forEach(script => {
+        if (script.hasAttribute('data-src')) {
+            const newScript = document.createElement('script');
+            newScript.async = true;
+            newScript.src = script.getAttribute('data-src');
+            if (script.hasAttribute('crossorigin')) {
+                newScript.crossOrigin = script.getAttribute('crossorigin');
+            }
+            document.head.appendChild(newScript);
+        }
+    });
+}
+
+/**
+ * Apply consent scripts based on user consent object
+ * @param {Object} consentObj - Object with analytics, ads, backend properties
+ */
+function applyConsentScripts(consentObj) {
+    if (consentObj.analytics) {
+        lazyLoadGtag();
+    }
+    if (consentObj.ads) {
+        lazyLoadAdSense();
+    }
+}
+
+// ===============================================
+// Generic League Data Loading Helpers
+// ===============================================
+
+/**
+ * Generic function to load league table data
+ * @param {string} apiPath - API endpoint path (e.g., '/api/sports/premier-tabela')
+ * @param {string} containerId - DOM element ID to populate
+ */
+async function loadLeagueTable(apiPath, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    try {
+        const response = await fetch(apiPath);
+        if (!response.ok) throw new Error('Failed to fetch table');
+        const data = await response.json();
+        
+        let html = '<table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95em;">';
+        html += '<thead><tr style="background-color: #34495e;">';
+        html += '<th style="padding: 12px;">Pos.</th>';
+        html += '<th style="padding: 12px;">Time</th>';
+        html += '<th style="padding: 12px;">Pts</th>';
+        html += '<th style="padding: 12px;">J</th>';
+        html += '<th style="padding: 12px;">V</th>';
+        html += '<th style="padding: 12px;">E</th>';
+        html += '<th style="padding: 12px;">D</th>';
+        html += '</tr></thead><tbody>';
+        
+        (data.standings || []).forEach(row => {
+            html += `<tr style="border-bottom: 1px solid #4a4a4a;">`;
+            html += `<td style="padding: 10px;">${row.position}</td>`;
+            html += `<td style="padding: 10px; font-weight: bold;">${row.team}</td>`;
+            html += `<td style="padding: 10px;">${row.points}</td>`;
+            html += `<td style="padding: 10px;">${row.played}</td>`;
+            html += `<td style="padding: 10px;">${row.won}</td>`;
+            html += `<td style="padding: 10px;">${row.drawn}</td>`;
+            html += `<td style="padding: 10px;">${row.lost}</td>`;
+            html += `</tr>`;
+        });
+        
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = '<p style="color: #e74c3c;">Erro ao carregar classificação.</p>';
+    }
+}
+
+/**
+ * Generic function to load top scorers data
+ * @param {string} apiPath - API endpoint path (e.g., '/api/sports/premier-artilheiros')
+ * @param {string} containerId - DOM element ID to populate
+ */
+async function loadTopScorers(apiPath, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    try {
+        const response = await fetch(apiPath);
+        if (!response.ok) throw new Error('Failed to fetch scorers');
+        const data = await response.json();
+        
+        let html = '<h4>⚽ Artilheiros</h4>';
+        html += '<table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95em;">';
+        html += '<thead><tr style="background-color: #34495e;">';
+        html += '<th style="padding: 12px;">Pos.</th>';
+        html += '<th style="padding: 12px;">Jogador</th>';
+        html += '<th style="padding: 12px;">Time</th>';
+        html += '<th style="padding: 12px;">Gols</th>';
+        html += '</tr></thead><tbody>';
+        
+        (data.scorers || []).forEach((scorer, idx) => {
+            html += `<tr style="border-bottom: 1px solid #4a4a4a;">`;
+            html += `<td style="padding: 10px;">${idx + 1}</td>`;
+            html += `<td style="padding: 10px; font-weight: bold;">${scorer.name}</td>`;
+            html += `<td style="padding: 10px;">${scorer.team}</td>`;
+            html += `<td style="padding: 10px; color: #f1c40f;">${scorer.goals}</td>`;
+            html += `</tr>`;
+        });
+        
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = '<p style="color: #e74c3c;">Erro ao carregar artilheiros.</p>';
+    }
+}
+
+/**
+ * Generic function to load upcoming matches
+ * @param {string} apiPath - API endpoint path (e.g., '/api/sports/premier-proximos')
+ * @param {string} containerId - DOM element ID to populate
+ */
+async function loadUpcomingMatches(apiPath, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    try {
+        const response = await fetch(apiPath);
+        if (!response.ok) throw new Error('Failed to fetch matches');
+        const data = await response.json();
+        
+        let html = '<h4>📅 Próximos Jogos</h4>';
+        html += '<table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95em;">';
+        html += '<thead><tr style="background-color: #34495e;">';
+        html += '<th style="padding: 12px;">Data</th>';
+        html += '<th style="padding: 12px;">Casa</th>';
+        html += '<th style="padding: 12px;">Visitante</th>';
+        html += '<th style="padding: 12px;">Horário</th>';
+        html += '</tr></thead><tbody>';
+        
+        (data.matches || []).forEach(match => {
+            html += `<tr style="border-bottom: 1px solid #4a4a4a;">`;
+            html += `<td style="padding: 10px;">${match.date}</td>`;
+            html += `<td style="padding: 10px;">${match.home}</td>`;
+            html += `<td style="padding: 10px;">${match.away}</td>`;
+            html += `<td style="padding: 10px;">${match.time}</td>`;
+            html += `</tr>`;
+        });
+        
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = '<p style="color: #e74c3c;">Erro ao carregar próximos jogos.</p>';
+    }
+}
+
+// ===============================================
+// League-specific Wrappers
+// ===============================================
+
+async function loadPremierLeague() {
+    await loadLeagueTable('/api/sports/premier-tabela', 'premierTable');
+    await loadTopScorers('/api/sports/premier-artilheiros', 'premierScorers');
+    await loadUpcomingMatches('/api/sports/premier-proximos', 'premierMatches');
+}
+
+async function loadLaLiga() {
+    await loadLeagueTable('/api/sports/laliga-tabela', 'laligaTable');
+    await loadTopScorers('/api/sports/laliga-artilheiros', 'laligaScorers');
+    await loadUpcomingMatches('/api/sports/laliga-proximos', 'laligaMatches');
+}
+
+async function loadSerieAIta() {
+    await loadLeagueTable('/api/sports/seriea-ita-tabela', 'serieaItaTable');
+    await loadTopScorers('/api/sports/seriea-ita-artilheiros', 'serieaItaScorers');
+    await loadUpcomingMatches('/api/sports/seriea-ita-proximos', 'serieaItaMatches');
+}
+
+async function loadLibertadores() {
+    await loadLeagueTable('/api/sports/libertadores-tabela', 'libertadoresTable');
+    await loadTopScorers('/api/sports/libertadores-artilheiros', 'libertadoresScorers');
+    await loadUpcomingMatches('/api/sports/libertadores-proximos', 'libertadoresMatches');
+}
+
+async function loadSudamericana() {
+    await loadLeagueTable('/api/sports/sudamericana-tabela', 'sudamericanaTable');
+    await loadTopScorers('/api/sports/sudamericana-artilheiros', 'sudamericanaScorers');
+    await loadUpcomingMatches('/api/sports/sudamericana-proximos', 'sudamericanaMatches');
+}
+
+async function loadUCL() {
+    await loadLeagueTable('/api/sports/ucl-tabela', 'uclTable');
+    await loadTopScorers('/api/sports/ucl-artilheiros', 'uclScorers');
+    await loadUpcomingMatches('/api/sports/ucl-proximos', 'uclMatches');
+}
+
+async function loadUEL() {
+    await loadLeagueTable('/api/sports/uel-tabela', 'uelTable');
+    await loadTopScorers('/api/sports/uel-artilheiros', 'uelScorers');
+    await loadUpcomingMatches('/api/sports/uel-proximos', 'uelMatches');
+}
+
+async function loadUEConf() {
+    await loadLeagueTable('/api/sports/ueconf-tabela', 'ueconfTable');
+    await loadTopScorers('/api/sports/ueconf-artilheiros', 'ueconfScorers');
+    await loadUpcomingMatches('/api/sports/ueconf-proximos', 'ueconfMatches');
+}
+
+// ===============================================
 // Variáveis do DOM e Estado Global
 // ===============================================
 const signInButton = document.getElementById('signInButton');
@@ -106,13 +338,16 @@ function showConsentBannerIfNeeded() {
 }
 
 window.acceptAllConsent = function() {
-    setConsent({ analytics: true, ads: true, backend: true });
+    const consent = { analytics: true, ads: true, backend: true };
+    setConsent(consent);
+    applyConsentScripts(consent);
     document.getElementById('consentBanner').style.display = 'none';
     showToast('Consentimento salvo: Analytics + Ads + Backend', { ttl: 2200 });
 }
 
 window.rejectAllConsent = function() {
-    setConsent({ analytics: false, ads: false, backend: false });
+    const consent = { analytics: false, ads: false, backend: false };
+    setConsent(consent);
     document.getElementById('consentBanner').style.display = 'none';
     showToast('Você rejeitou cookies e tracking. Algumas funcionalidades ficarão limitadas.', { ttl: 2500 });
 }
@@ -149,6 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
             backend: !!document.getElementById('cons_backend').checked
         };
         setConsent(newConsent);
+        applyConsentScripts(newConsent);
         closeConsentModal();
         showToast('Preferências salvas.', { ttl: 1800 });
     });
@@ -160,6 +396,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Show banner if needed on load
     showConsentBannerIfNeeded();
+    
+    // Apply consent scripts if user has already consented
+    try {
+        const savedConsent = JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null');
+        if (savedConsent) {
+            applyConsentScripts(savedConsent);
+        }
+    } catch (e) {
+        console.warn('Could not apply saved consent', e);
+    }
+    
     // Firebase setup button
     const fbBtn = document.getElementById('firebaseSetupBtn');
     if (fbBtn) fbBtn.addEventListener('click', () => {
@@ -532,7 +779,7 @@ function quickQuery(queryType) {
 }
 
 /** Simula a abertura de um minijogo */
-function openGame(gameName) {
+async function openGame(gameName) {
     if (!currentUser) {
         showToast('Você precisa estar logado para iniciar um jogo e ganhar moedas!', {ttl: 3000});
         return;
@@ -550,6 +797,38 @@ function openGame(gameName) {
         fetch('/api/coins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.userId, coins: userCoins }) }).catch(()=>{});
     }
     showToast(`+${COIN_GAIN} moedas por iniciar ${gameName}!`, {ttl: 2500});
+    
+    // Dynamically load and render the game
+    const gameContentArea = document.getElementById('gameContentArea');
+    if (!gameContentArea) return;
+    
+    try {
+        if (gameName === 'precisao') {
+            const { renderPrecisaoGame } = await import('./games/precisao.js');
+            renderPrecisaoGame('gameContentArea');
+        } else if (gameName === 'goleiro') {
+            const { renderGoleiroGame } = await import('./games/goleiro.js');
+            renderGoleiroGame('gameContentArea');
+        } else if (gameName === 'ranking') {
+            const { renderGlobalRanking } = await import('./games/ranking.js');
+            renderGlobalRanking('gameContentArea');
+        } else {
+            gameContentArea.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #f1c40f;">
+                    <h3>🎮 ${gameName.toUpperCase()}</h3>
+                    <p>Este jogo está em desenvolvimento e será lançado em breve!</p>
+                    <p style="margin-top: 20px;">Continue jogando outros minijogos para acumular moedas! 💰</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading game:', error);
+        gameContentArea.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #e74c3c;">
+                <p>Erro ao carregar o jogo. Tente novamente mais tarde.</p>
+            </div>
+        `;
+    }
 }
 
 // Função para simular o fim do jogo e persistir moedas
@@ -646,6 +925,18 @@ function navigateTo(pageId) {
     });
 
     history.pushState(null, null, `#${pageId}`);
+    
+    // Lazy-load international league data when navigating to internacional page
+    if (pageId === 'internacional' && getConsent('backend')) {
+        loadPremierLeague();
+        loadLaLiga();
+        loadSerieAIta();
+        loadLibertadores();
+        loadSudamericana();
+        loadUCL();
+        loadUEL();
+        loadUEConf();
+    }
 }
 
 navButtons.forEach(button => {
