@@ -77,7 +77,7 @@ function generateMockTopScorers(leagueName) {
         logo: 'https://via.placeholder.com/30'
       },
       games: {
-        appearences: 10 + index,
+        appearances: 10 + index,
         cleansheets: 0
       },
       goals: {
