@@ -34,15 +34,17 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="manifest" href="/site.webmanifest">
     
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-    <script>
+    <!-- Google Analytics: consent-gated, loaded via app.js after user consent -->
+    <script type="text/plain" data-consent="analytics" data-src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script type="text/plain" data-consent="analytics">
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'GA_MEASUREMENT_ID');
     </script>
     
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=PUB_ID" crossorigin="anonymous"></script>
+    <!-- AdSense: consent-gated, loaded via app.js after user consent -->
+    <script type="text/plain" data-consent="ads" data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=PUB_ID" crossorigin="anonymous"></script>
     
     <link rel="stylesheet" href="style.css">
     
@@ -92,7 +94,7 @@
         </div>
 
         <h1 class="logo">
-            <img src="logo.png.png" alt="Futebol Analytics Pro Logo" class="site-logo">
+            <img src="logo.png" alt="Futebol Analytics Pro Logo" class="site-logo">
         </h1>
         <p class="subtitle" style="color: white;">Análises de IA, Estatísticas e Palpites Avançados dos Campeonatos Brasileiros 2025</p>
 
@@ -118,6 +120,11 @@
             <li role="none">
                 <a href="#copa" class="nav-btn" data-page="copa" role="menuitem" aria-label="Ver resultados da Copa do Brasil">
                     🥇 Copa do Brasil
+                </a>
+            </li>
+            <li role="none">
+                <a href="#internacional" class="nav-btn" data-page="internacional" role="menuitem" aria-label="Ver campeonatos internacionais">
+                    🌍 Internacionais
                 </a>
             </li>
             <li role="none">
@@ -302,6 +309,182 @@
                 <div class="loading" role="status" aria-label="Carregando resultados da Copa do Brasil">
                     <div class="spinner" aria-hidden="true"></div>
                     <p>Carregando resultados da Copa do Brasil...</p>
+                </div>
+            </div>
+
+            <div class="adsense-space" role="complementary" aria-label="Espaço publicitário">
+                Espaço para Banner AdSense 728x90
+            </div>
+        </section>
+
+        <section id="internacional" class="page" aria-label="Página de Campeonatos Internacionais">
+            <h2>🌍 Campeonatos Internacionais</h2>
+            
+            <!-- Premier League -->
+            <h3>⚽ Premier League</h3>
+            <div id="premierTable" class="table-container" role="region" aria-label="Classificação da Premier League">
+                <div class="loading" role="status" aria-label="Carregando classificação da Premier League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da Premier League...</p>
+                </div>
+            </div>
+            <div id="premierScorers" class="table-container" role="region" aria-label="Artilheiros da Premier League">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Premier League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+            <div id="premierMatches" class="table-container" role="region" aria-label="Próximos jogos da Premier League">
+                <div class="loading" role="status" aria-label="Carregando próximos jogos da Premier League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando próximos jogos...</p>
+                </div>
+            </div>
+
+            <!-- La Liga -->
+            <h3>🇪🇸 La Liga</h3>
+            <div id="laligaTable" class="table-container" role="region" aria-label="Classificação da La Liga">
+                <div class="loading" role="status" aria-label="Carregando classificação da La Liga">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da La Liga...</p>
+                </div>
+            </div>
+            <div id="laligaScorers" class="table-container" role="region" aria-label="Artilheiros da La Liga">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da La Liga">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+            <div id="laligaMatches" class="table-container" role="region" aria-label="Próximos jogos da La Liga">
+                <div class="loading" role="status" aria-label="Carregando próximos jogos da La Liga">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando próximos jogos...</p>
+                </div>
+            </div>
+
+            <!-- Serie A (Italy) -->
+            <h3>🇮🇹 Serie A (Itália)</h3>
+            <div id="serieaItaTable" class="table-container" role="region" aria-label="Classificação da Serie A">
+                <div class="loading" role="status" aria-label="Carregando classificação da Serie A">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da Serie A...</p>
+                </div>
+            </div>
+            <div id="serieaItaScorers" class="table-container" role="region" aria-label="Artilheiros da Serie A">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Serie A">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+            <div id="serieaItaMatches" class="table-container" role="region" aria-label="Próximos jogos da Serie A">
+                <div class="loading" role="status" aria-label="Carregando próximos jogos da Serie A">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando próximos jogos...</p>
+                </div>
+            </div>
+
+            <!-- CONMEBOL Libertadores -->
+            <h3>🏆 CONMEBOL Libertadores</h3>
+            <div id="libertadoresTable" class="table-container" role="region" aria-label="Classificação da Libertadores">
+                <div class="loading" role="status" aria-label="Carregando classificação da Libertadores">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da Libertadores...</p>
+                </div>
+            </div>
+            <div id="libertadoresScorers" class="table-container" role="region" aria-label="Artilheiros da Libertadores">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Libertadores">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+            <div id="libertadoresMatches" class="table-container" role="region" aria-label="Próximos jogos da Libertadores">
+                <div class="loading" role="status" aria-label="Carregando próximos jogos da Libertadores">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando próximos jogos...</p>
+                </div>
+            </div>
+
+            <!-- CONMEBOL Sudamericana -->
+            <h3>🥈 CONMEBOL Sudamericana</h3>
+            <div id="sudamericanaTable" class="table-container" role="region" aria-label="Classificação da Sudamericana">
+                <div class="loading" role="status" aria-label="Carregando classificação da Sudamericana">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da Sudamericana...</p>
+                </div>
+            </div>
+            <div id="sudamericanaScorers" class="table-container" role="region" aria-label="Artilheiros da Sudamericana">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Sudamericana">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+            <div id="sudamericanaMatches" class="table-container" role="region" aria-label="Próximos jogos da Sudamericana">
+                <div class="loading" role="status" aria-label="Carregando próximos jogos da Sudamericana">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando próximos jogos...</p>
+                </div>
+            </div>
+
+            <!-- UEFA Champions League -->
+            <h3>⭐ UEFA Champions League</h3>
+            <div id="uclTable" class="table-container" role="region" aria-label="Classificação da Champions League">
+                <div class="loading" role="status" aria-label="Carregando classificação da Champions League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da Champions League...</p>
+                </div>
+            </div>
+            <div id="uclScorers" class="table-container" role="region" aria-label="Artilheiros da Champions League">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Champions League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+            <div id="uclMatches" class="table-container" role="region" aria-label="Próximos jogos da Champions League">
+                <div class="loading" role="status" aria-label="Carregando próximos jogos da Champions League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando próximos jogos...</p>
+                </div>
+            </div>
+
+            <!-- UEFA Europa League -->
+            <h3>🌟 UEFA Europa League</h3>
+            <div id="uelTable" class="table-container" role="region" aria-label="Classificação da Europa League">
+                <div class="loading" role="status" aria-label="Carregando classificação da Europa League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da Europa League...</p>
+                </div>
+            </div>
+            <div id="uelScorers" class="table-container" role="region" aria-label="Artilheiros da Europa League">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Europa League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+            <div id="uelMatches" class="table-container" role="region" aria-label="Próximos jogos da Europa League">
+                <div class="loading" role="status" aria-label="Carregando próximos jogos da Europa League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando próximos jogos...</p>
+                </div>
+            </div>
+
+            <!-- UEFA Conference League -->
+            <h3>🔷 UEFA Conference League</h3>
+            <div id="ueconfTable" class="table-container" role="region" aria-label="Classificação da Conference League">
+                <div class="loading" role="status" aria-label="Carregando classificação da Conference League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando classificação da Conference League...</p>
+                </div>
+            </div>
+            <div id="ueconfScorers" class="table-container" role="region" aria-label="Artilheiros da Conference League">
+                <div class="loading" role="status" aria-label="Carregando artilheiros da Conference League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando artilheiros...</p>
+                </div>
+            </div>
+            <div id="ueconfMatches" class="table-container" role="region" aria-label="Próximos jogos da Conference League">
+                <div class="loading" role="status" aria-label="Carregando próximos jogos da Conference League">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Carregando próximos jogos...</p>
                 </div>
             </div>
 
