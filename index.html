@@ -57,6 +57,9 @@
         <link rel="preconnect" href="https://pagead2.googlesyndication.com">
         <link rel="dns-prefetch" href="https://fonts.gstatic.com">
         <link rel="dns-prefetch" href="https://www.google-analytics.com">
+    <!-- Awesomplete (autocomplete) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
     </head>
     <body>
         <!-- Consent banner (CMP) -->
@@ -139,6 +142,143 @@
                 <h2>Classificações do Brasileirão</h2>
                 <div id="leagueTables" class="tables">
                     <!-- Tables populated by app.js -->
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Serie A</h3>
+                            <div id="serieATable" class="table-container"></div>
+                        </div>
+                        <div class="table-col">
+                            <h3>Artilheiros (Serie A)</h3>
+                            <div id="artilheirosTable" class="table-container"></div>
+                            <h4>Top Scorers Goal Chart</h4>
+                            <canvas id="chartArtilheiros" width="600" height="300"></canvas>
+                        </div>
+                    </div>
+                    <!-- Radar comparison controls -->
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Compare Teams</h3>
+                            <label for="inputRadarTime1">Escolha até 3 times (autocomplete):</label><br>
+                            <input id="inputRadarTime1" class="awesomplete" placeholder="Time 1" style="width:100%; max-width:360px; margin-bottom:6px;" />
+                            <input id="inputRadarTime2" class="awesomplete" placeholder="Time 2" style="width:100%; max-width:360px; margin-bottom:6px;" />
+                            <input id="inputRadarTime3" class="awesomplete" placeholder="Time 3" style="width:100%; max-width:360px; margin-bottom:8px;" />
+                            <div style="margin-bottom:8px;"><small>ou use a lista abaixo</small></div>
+                            <label for="selectTimesRadar">(fallback) Escolha até 3 times:</label><br>
+                            <select id="selectTimesRadar" multiple size="6" style="width:100%; max-width:360px; margin-bottom:8px;"></select>
+                            <div style="margin-bottom:12px;"><button id="btnRadarTimes" class="auth-button">Gerar Radar de Times</button></div>
+                            <h3>Team Comparison (Radar)</h3>
+                            <div id="chartRadarTimes" style="max-width:680px; margin-top:8px;"></div>
+                        </div>
+                        <div class="table-col">
+                            <h3>Compare Players</h3>
+                            <label for="inputRadarJogador1">Escolha até 3 jogadores (autocomplete):</label><br>
+                            <input id="inputRadarJogador1" class="awesomplete" placeholder="Jogador 1" style="width:100%; max-width:360px; margin-bottom:6px;" />
+                            <input id="inputRadarJogador2" class="awesomplete" placeholder="Jogador 2" style="width:100%; max-width:360px; margin-bottom:6px;" />
+                            <input id="inputRadarJogador3" class="awesomplete" placeholder="Jogador 3" style="width:100%; max-width:360px; margin-bottom:8px;" />
+                            <div style="margin-bottom:8px;"><small>ou use a lista abaixo</small></div>
+                            <label for="selectJogadoresRadar">(fallback) Escolha até 3 jogadores:</label><br>
+                            <select id="selectJogadoresRadar" multiple size="6" style="width:100%; max-width:360px; margin-bottom:8px;"></select>
+                            <div style="margin-bottom:12px;"><button id="btnRadarJogadores" class="auth-button">Gerar Radar de Jogadores</button></div>
+                            <h3>Player Comparison (Radar)</h3>
+                            <div id="chartRadarJogadores" style="max-width:680px; margin-top:8px;"></div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Serie B</h3>
+                            <div id="serieBTable" class="table-container"></div>
+                        </div>
+                        <div class="table-col">
+                            <h3>Artilheiros (Serie B)</h3>
+                            <div id="artilheirosSerieB" class="table-container"></div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Assistências (Serie A)</h3>
+                            <div id="assistenciasSerieA" class="table-container"></div>
+                            <!-- Backwards-compatible ID used in docs/examples -->
+                            <div id="assistenciasTableSerieA" class="table-container" aria-hidden="true"></div>
+                            <h4>Assists Chart</h4>
+                            <canvas id="chartAssistencias" width="600" height="300"></canvas>
+                        </div>
+                        <div class="table-col">
+                            <h3>Cartões (Serie A)</h3>
+                            <div id="cartoesSerieA" class="table-container"></div>
+                            <div id="cartoesTableSerieA" class="table-container" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Goleiros (Clean Sheets) - Serie A</h3>
+                            <div id="goleirosSerieA" class="table-container"></div>
+                            <div id="goleirosTableSerieA" class="table-container" aria-hidden="true"></div>
+                            <h4>Goalkeepers (Clean Sheets) Chart</h4>
+                            <canvas id="chartGoleiros" width="600" height="300"></canvas>
+                        </div>
+                        <div class="table-col">
+                            <h3>Assistências (Serie B)</h3>
+                            <div id="assistenciasSerieB" class="table-container"></div>
+                            <div id="assistenciasTableSerieB" class="table-container" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Cartões (Serie B)</h3>
+                            <div id="cartoesSerieB" class="table-container"></div>
+                            <div id="cartoesTableSerieB" class="table-container" aria-hidden="true"></div>
+                        </div>
+                        <div class="table-col">
+                            <h3>Goleiros (Serie B)</h3>
+                            <div id="goleirosSerieB" class="table-container"></div>
+                            <div id="goleirosTableSerieB" class="table-container" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Copa do Brasil</h3>
+                            <div id="copaTable" class="table-container"></div>
+                            <div id="copaTableTable" class="table-container" aria-hidden="true"></div>
+                        </div>
+                        <div class="table-col">
+                            <h3>Artilheiros (Copa do Brasil)</h3>
+                            <div id="artilheirosCopa" class="table-container"></div>
+                            <div id="artilheirosTableCopa" class="table-container" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Assistências (Copa do Brasil)</h3>
+                            <div id="assistenciasCopa" class="table-container"></div>
+                            <div id="assistenciasTableCopa" class="table-container" aria-hidden="true"></div>
+                        </div>
+                        <div class="table-col">
+                            <h3>Cartões (Copa do Brasil)</h3>
+                            <div id="cartoesCopa" class="table-container"></div>
+                            <div id="cartoesTableCopa" class="table-container" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Goleiros (Copa do Brasil)</h3>
+                            <div id="goleirosCopa" class="table-container"></div>
+                            <div id="goleirosTableCopa" class="table-container" aria-hidden="true"></div>
+                        </div>
+                        <div class="table-col">
+                            <h3>Próximos Jogos</h3>
+                            <div id="proximosMatches" class="table-container"></div>
+                        </div>
+                    </div>
+                    <div class="table-row">
+                        <div class="table-col">
+                            <h3>Copa do Brasil</h3>
+                            <div id="copaTable" class="table-container"></div>
+                        </div>
+                        <div class="table-col">
+                            <h3>Artilheiros (Copa do Brasil)</h3>
+                            <div id="artilheirosCopa" class="table-container"></div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -176,6 +316,8 @@
                     <label>Mensagem<br><textarea id="contactMessage"></textarea></label>
                     <button type="submit" class="auth-button">Enviar</button>
                 </form>
+                <div id="contactSuccess" class="success" style="display:none;margin-top:8px;color:green;" role="alert" aria-live="polite">✅ Sua mensagem foi enviada. Entraremos em contato em breve.</div>
+                <div id="contactError" class="error" style="display:none;margin-top:8px;color:#e74c3c;" role="alert" aria-live="polite">❌ Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde.</div>
             </section>
 
             <section id="privacy" class="page" data-page="privacy">
@@ -247,5 +389,7 @@
             </div>
         </div>
         <script src="app.js"></script>
+        <!-- Chart.js for dynamic statistical charts -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </body>
     </html>
