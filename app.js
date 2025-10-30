@@ -1,707 +1,713 @@
-// Minimal clean app.js
-// Purpose: Consent (CMP), local coin persistence, simple gamification, SPA navigation, optional Firebase hooks
+// APP-CLEAN-V1
 
-// DOM refs
-const signInButton = document.getElementById('signInButton');
-const signOutButton = document.getElementById('signOutButton');
-const userProfile = document.getElementById('userProfile');
-const userCoinsDisplay = document.getElementById('userCoins');
-const backendStatusText = document.getElementById('statusText');
-const backendStatusIndicator = document.querySelector('.status-indicator');
-const navButtons = document.querySelectorAll('.nav-btn');
-const pages = document.querySelectorAll('.page');
-const iaResponseDiv = document.getElementById('iaResponse');
-const featuredMatchesDiv = document.getElementById('featuredMatches');
-const serieATableDiv = document.getElementById('serieATable');
-const serieBTableDiv = document.getElementById('serieBTable');
-const gameContentArea = document.getElementById('gameContentArea');
+'use strict';
 
-// App state
-let currentUser = null;
-let userCoins = 0;
-let interactionsCount = 0;
-let gamesPlayedCount = 0;
-let startTime = Date.now();
-let engagementScore = 0;
+// Minimal definitive app.js to resolve merge conflicts
+(function(){
+    const COINS_KEY = 'fap_user_coins_v1';
+    const CONSENT_KEY = 'fap_user_consent_v1';
+    let currentUser = null;
+    let userCoins = 0;
+    const $id = id => document.getElementById(id);
 
-// Keys
-const COINS_STORAGE_KEY = 'fap_user_coins_v1';
-const CONSENT_KEY = 'fap_user_consent_v1';
+    function loadCoins(){ try{ const v = localStorage.getItem(COINS_KEY); userCoins = v===null?0:parseInt(v,10)||0; }catch(e){ userCoins = 0; } }
+    function saveCoins(){ try{ localStorage.setItem(COINS_KEY, String(userCoins)); }catch(e){} }
+    function readConsent(){ try{ const raw = localStorage.getItem(CONSENT_KEY); return raw?JSON.parse(raw):{analytics:false,ads:false,backend:false}; }catch(e){ return {analytics:false,ads:false,backend:false}; } }
+    function saveConsent(obj){ try{ localStorage.setItem(CONSENT_KEY, JSON.stringify(obj||{})); }catch(e){} }
+    function showToast(msg){ const t=document.createElement('div'); t.textContent=msg; t.style='position:fixed;right:12px;bottom:24px;background:#222;color:#fff;padding:8px;border-radius:6px;z-index:9999;'; document.body.appendChild(t); setTimeout(()=>t.remove(),2200); }
 
-// Demo data
-const CLASSIFICATION_DATA = {
-  serieA: [ { pos:1, team:'Fluminense', pts:65 }, { pos:2, team:'Flamengo', pts:62 } ],
-  serieB: [ { pos:1, team:'Vasco', pts:72 } ]
-};
+    async function signIn(){ currentUser = { name:'LocalUser', userId:`local-${Date.now()}` }; if(userCoins<=0) userCoins=500; saveCoins(); updateAuthUi(); showToast(`Bem-vindo, ${currentUser.name}!`); }
+    async function signOut(){ currentUser=null; userCoins=0; saveCoins(); updateAuthUi(); showToast('Você saiu.'); }
+    function updateAuthUi(){ const s=$id('signInButton'), so=$id('signOutButton'), up=$id('userProfile'), uc=$id('userCoins'); if(currentUser){ if(s) s.style.display='none'; if(so) so.style.display='inline-block'; if(up) up.style.display='flex'; if(uc) uc.textContent=userCoins; } else { if(s) s.style.display='inline-block'; if(so) so.style.display='none'; if(up) up.style.display='none'; if(uc) uc.textContent=userCoins; } }
 
-// Helpers
-function loadCoinsFromStorage(){ try{ const raw=localStorage.getItem(COINS_STORAGE_KEY); if(raw!==null){ const v=parseInt(raw,10); if(!isNaN(v)) userCoins=v; } }catch(e){ console.warn(e); } }
-function saveCoinsToStorage(){ try{ localStorage.setItem(COINS_STORAGE_KEY, String(userCoins)); }catch(e){console.warn(e);} }
-function showToast(msg, opts={}){ const c=document.getElementById('toastContainer'); if(!c) return; const t=document.createElement('div'); t.className='toast'; t.textContent=msg; c.appendChild(t); setTimeout(()=>t.classList.add('show'),10); setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, opts.ttl||3500); }
+    async function postScoreIfAllowed(game, score){ try{ const consent = readConsent(); if(!consent.backend) return; if(!currentUser) return; await fetch('/api/ranking',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ game, nome: currentUser.name||'Anon', pontos: Number(score)||0 }) }); }catch(e){ console.warn('postScore failed', e); } }
 
-function getConsent(k){ try{ const raw=localStorage.getItem(CONSENT_KEY); if(!raw) return false; return !!JSON.parse(raw)[k]; }catch(e){return false;} }
-function setConsent(o){ try{ localStorage.setItem(CONSENT_KEY, JSON.stringify(o||{})); }catch(e){console.warn(e);} }
-function lazyLoadAdSense() {
-  if (document.querySelector('script[data-consent-loaded="ads"]')) return;
-  const ph = document.querySelector('script[data-consent="ads"]');
-  if (ph) {
-    const s = document.createElement('script');
-    s.src = ph.getAttribute('data-src');
-    s.async = true;
-    s.setAttribute('data-consent-loaded', 'ads');
-    document.head.appendChild(s);
-  }
-}
-function lazyLoadGtag() {
-  if (document.querySelector('script[data-consent-loaded="analytics"]')) return;
-  const ph = document.querySelector('script[data-consent="analytics"]');
-  if (ph) {
-    const s = document.createElement('script');
-    s.src = ph.getAttribute('data-src');
-    s.async = true;
-    s.setAttribute('data-consent-loaded', 'analytics');
-    document.head.appendChild(s);
-    // Inline gtag init
-    const init = document.getElementById('gtag-init');
-    if (init) {
-      const inline = document.createElement('script');
-      inline.text = init.textContent;
-      inline.setAttribute('data-consent-loaded', 'analytics');
-      document.head.appendChild(inline);
-    }
-  }
-}
-function applyConsentScripts(consent) {
-  if (consent?.ads) lazyLoadAdSense();
-  if (consent?.analytics) lazyLoadGtag();
-}
-// Ensure showConsentBannerIfNeeded exists and is safe to call from DOMContentLoaded
-function showConsentBannerIfNeeded() {
-  try {
-    const raw = localStorage.getItem(CONSENT_KEY);
-    const consent = raw ? JSON.parse(raw) : null;
-    const b = document.getElementById('consentBanner');
-    // If no consent recorded, show the banner
-    if (!consent) {
-      if (b) b.style.display = 'block';
-      return;
-    }
-    // If consent exists, ensure scripts load for granted categories
-    if (consent) applyConsentScripts(consent);
-    if (b) b.style.display = 'none';
-  } catch (e) {
-    // fail silently
-    console.warn('showConsentBannerIfNeeded error', e);
-  }
-}
-window.acceptAllConsent = ()=>{
-  const consent = {analytics:true,ads:true,backend:true};
-  setConsent(consent);
-  applyConsentScripts(consent);
-  const b=document.getElementById('consentBanner'); if(b) b.style.display='none'; showToast('Consent saved');
-};
-window.rejectAllConsent = ()=>{ setConsent({analytics:false,ads:false,backend:false}); const b=document.getElementById('consentBanner'); if(b) b.style.display='none'; showToast('Consent rejected'); };
+    async function openGame(name){ const area=$id('gameContentArea'); if(!area){ showToast('Área do jogo não encontrada'); return; } if(!currentUser){ showToast('Faça login para jogar'); return; } area.innerHTML='<p>Carregando...</p>'; try{ let mod; switch((name||'').toLowerCase()){ case 'precisao': mod = await import('./games/precisao.js'); break; case 'goleiro': mod = await import('./games/goleiro.js'); break; case 'fisico': mod = await import('./games/fisico.js'); break; case 'ranking': mod = await import('./games/ranking.js'); break; default: area.innerHTML=`<p>Minigame ${name} não encontrado</p>`; return; }
+        const onFinish = async score=>{ const coins=Math.max(0,Math.round((score||0)/5)); if(coins>0){ userCoins+=coins; saveCoins(); const uc=$id('userCoins'); if(uc) uc.textContent=userCoins; showToast(`+${coins} moedas`); } await postScoreIfAllowed(name, score); };
+        area.innerHTML=''; if(mod && typeof mod.render==='function') mod.render(area,onFinish); else if(mod && typeof mod.renderPrecisaoGame==='function') mod.renderPrecisaoGame(area,onFinish); else if(mod && typeof mod.renderGoleiroGame==='function') mod.renderGoleiroGame(area,onFinish); else if(mod && typeof mod.renderFisicoGame==='function') mod.renderFisicoGame(area,onFinish); else if(mod && typeof mod.renderGlobalRanking==='function') mod.renderGlobalRanking(area,name); else area.innerHTML='<p>Minigame carregado (sem renderer).</p>';
+    }catch(err){ console.warn(err); area.innerHTML='<p>Erro ao carregar o minigame.</p>'; } }
 
-function generateTableHTML(data){ if(!Array.isArray(data)) return '<p>No data</p>'; let html='<table class="mini-table"><thead><tr><th>Pos</th><th>Team</th><th>Pts</th></tr></thead><tbody>'; data.forEach(r=> html+=`<tr><td>${r.pos}</td><td>${r.team}</td><td>${r.pts}</td></tr>`); html+='</tbody></table>'; return html; }
-function animateCoinGain(n){ const el=document.createElement('div'); el.textContent=`+${n} 💰`; el.className='coin-fly'; el.style.cssText='position:fixed;top:80px;right:15%;background:#f1c40f;padding:6px 12px;border-radius:20px;z-index:9999;opacity:0;transform:translateY(12px);transition:all .45s'; document.body.appendChild(el); setTimeout(()=>{el.style.opacity='1';el.style.transform='translateY(0)';},20); setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(-20px)';},1400); setTimeout(()=>el.remove(),1800); }
+    function quickQuery(q){ if(!currentUser){ showToast('Faça login para usar a IA'); return; } userCoins+=5; saveCoins(); const uc=$id('userCoins'); if(uc) uc.textContent=userCoins; showToast('+5 moedas'); if($id('iaResponse')) $id('iaResponse').innerHTML=`<p>Resposta simulada para: ${q}</p>`; }
 
-// Auth & gamification (minimal)
-function signIn(){ currentUser={ name:'LocalUser', userId:`local-${Date.now()}` }; loadCoinsFromStorage(); if(!userCoins) userCoins=500; updateAuthState(true); showToast('Signed in (local)'); }
-function signOut(){ currentUser=null; saveCoinsToStorage(); userCoins=0; updateAuthState(false); showToast('Signed out'); }
+    function wireUi(){ const s=$id('signInButton'), so=$id('signOutButton'); if(s) s.addEventListener('click', signIn); if(so) so.addEventListener('click', signOut); const sc=$id('saveConsentBtn'); if(sc) sc.addEventListener('click', ()=>{ const newC={ analytics:!!($id('cons_analytics')&&$id('cons_analytics').checked), ads:!!($id('cons_ads')&&$id('cons_ads').checked), backend:!!($id('cons_backend')&&$id('cons_backend').checked) }; saveConsent(newC); const m=$id('consentModal'); if(m) m.style.display='none'; showToast('Preferências salvas'); }); }
 
-function updateAuthState(logged){ const secs=document.querySelectorAll('.auth-required'); const prompts=document.querySelectorAll('.sign-in-prompt'); if(logged && currentUser){ if(signInButton) signInButton.style.display='none'; if(signOutButton) signOutButton.style.display='block'; if(userProfile) userProfile.style.display='flex'; const uname=document.getElementById('userName'); if(uname && currentUser.name) uname.textContent=currentUser.name; if(userCoinsDisplay) userCoinsDisplay.textContent=userCoins; secs.forEach(s=>s.classList.add('logged-in')); prompts.forEach(p=>p.classList.add('logged-in')); } else { if(signInButton) signInButton.style.display='block'; if(signOutButton) signOutButton.style.display='none'; if(userProfile) userProfile.style.display='none'; secs.forEach(s=>s.classList.remove('logged-in')); prompts.forEach(p=>p.classList.remove('logged-in')); } }
+    window.openGame=openGame; window.quickQuery=quickQuery; window.endGame=function(){ saveCoins(); showToast('Jogo finalizado.'); }; window.acceptAllConsent=function(){ saveConsent({analytics:true,ads:true,backend:true}); const b=$id('consentBanner'); if(b) b.style.display='none'; showToast('Consentimento aceito'); }; window.rejectAllConsent=function(){ saveConsent({analytics:false,ads:false,backend:false}); const b=$id('consentBanner'); if(b) b.style.display='none'; showToast('Consentimento rejeitado'); };
 
-function quickQuery(q){ if(!currentUser){ if(iaResponseDiv) iaResponseDiv.innerHTML='<p style="color:#e74c3c">🔒 Login required</p>'; return; } interactionsCount++; const G=5; userCoins+=G; if(userCoinsDisplay) userCoinsDisplay.textContent=userCoins; animateCoinGain(G); saveCoinsToStorage(); showToast(`+${G} coins`); if(iaResponseDiv) iaResponseDiv.innerHTML=`<p>Response for ${q}</p>`; updateMetrics(); }
-async function openGame(name){
-  if(!currentUser){ showToast('Login needed'); return; }
-  const container = document.getElementById('gameContentArea');
-  if(!container) return;
-  container.innerHTML = '<p>Carregando minigame...</p>';
-  try{
-    let mod = null;
-    switch((name||'').toLowerCase()){
-      case 'precisao':
-      case 'tactical':
-        mod = await import('./games/precisao.js'); break;
-      case 'goleiro':
-      case 'goalkeeper':
-        mod = await import('./games/goleiro.js'); break;
-      case 'fisico':
-      case 'conditioning':
-        mod = await import('./games/fisico.js'); break;
-      case 'ranking':
-        mod = await import('./games/ranking.js'); break;
-      default:
-        container.innerHTML = `<p>Minigame não encontrado: ${name}</p>`; return;
-    }
-    // Provide onFinish that awards coins and optionally posts to /api/ranking
-    const onFinish = async (score)=>{
-      // award coins based on score (simple rule)
-      const coins = Math.max(0, Math.round((score||0)/5));
-      if(coins>0){ userCoins += coins; if(userCoinsDisplay) userCoinsDisplay.textContent = userCoins; animateCoinGain(coins); saveCoinsToStorage(); showToast(`+${coins} coins (game)`); }
-      // try to post to backend ranking endpoint if available
-      try{
-        await fetch('/api/ranking', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ game: name, nome: currentUser?.name || currentUser?.email || 'Anonymous', pontos: score }) });
-      }catch(e){ /* ignore backend errors */ }
-      // If the module exposes ranking renderer, show global ranking
-      try{ if(mod && mod.renderGlobalRanking){ mod.renderGlobalRanking(container, name); } else { // load ranking module
-          const rmod = await import('./games/ranking.js'); rmod.renderGlobalRanking(container, name); }
-      }catch(e){ console.warn('Could not render ranking', e); }
-    };
-    // Clear container and render
-    container.innerHTML = '';
-    if(typeof mod.renderPrecisaoGame === 'function'){ mod.renderPrecisaoGame(container, onFinish); }
-    else if(typeof mod.renderGoleiroGame === 'function'){ mod.renderGoleiroGame(container, onFinish); }
-    else if(typeof mod.renderFisicoGame === 'function'){ mod.renderFisicoGame(container, onFinish); }
-    else if(typeof mod.renderGlobalRanking === 'function'){ mod.renderGlobalRanking(container, name); }
-    else { container.innerHTML = '<p>Minigame carregado, mas não possui função de render.</p>'; }
-  }catch(e){ console.warn('openGame error', e); container.innerHTML = '<p>Falha ao carregar o minigame.</p>'; }
-}
-window.endGame = ()=>{ saveCoinsToStorage(); showToast('Game ended'); if(gameContentArea) gameContentArea.innerHTML=''; };
+    window.addEventListener('load', ()=>{ loadCoins(); updateAuthUi(); wireUi(); const uc=$id('userCoins'); if(uc) uc.textContent=userCoins; const h=location.hash.replace('#',''); if(h && $id(h)){ document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active')); $id(h).classList.add('active'); } else { if($id('home')){ document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active')); $id('home').classList.add('active'); } } });
 
-function updateMetrics(){ const s=Math.floor((Date.now()-startTime)/1000); engagementScore = Math.min((interactionsCount*1.5)+(gamesPlayedCount*3)+(s/120),10); const se=document.getElementById('sessionTime'); if(se) se.textContent=`${s}s`; const ie=document.getElementById('interactions'); if(ie) ie.textContent=interactionsCount; const ge=document.getElementById('gamesPlayed'); if(ge) ge.textContent=gamesPlayedCount; const eng=document.getElementById('engagementScore'); if(eng) eng.textContent=engagementScore.toFixed(2); }
+})();
 
-function loadFeaturedMatches(){ if(featuredMatchesDiv) featuredMatchesDiv.innerHTML = '<h3>Próximos Jogos</h3>' + generateTableHTML(CLASSIFICATION_DATA.serieA); }
-// --- Real data loaders (call backend proxy endpoints) ---
-async function loadSerieAReal(){
-  try{
-    const res = await fetch('/api/sports/brasileirao-tabela');
-    const data = await res.json();
-    const standings = data.response?.[0]?.league?.standings?.[0];
-    if(!standings) { document.getElementById('serieATable').innerHTML = '<p>Nenhum dado disponível.</p>'; return; }
-    let html = `<table class="mini-table"><thead><tr><th>Pos</th><th>Time</th><th>Pts</th></tr></thead><tbody>`;
-    standings.forEach(team=>{
-      html += `<tr><td>${team.rank}</td><td><img src="${team.team.logo}" style="height:18px;vertical-align:middle;margin-right:6px"> ${team.team.name}</td><td>${team.points}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-    const el = document.getElementById('serieATable'); if(el) el.innerHTML = html;
-  }catch(e){ console.warn(e); const el=document.getElementById('serieATable'); if(el) el.innerHTML = '<p>Erro ao carregar classificações.</p>'; }
-}
+/*
+  Clean, conflict-free frontend for FutebolAnalyticsPro
+  - Consent persistence (analytics, ads, backend)
+  - Coin persistence (localStorage)
+  - Simple local sign-in fallback
+  - Dynamic minigame loading and posting scores to /api/ranking when backend consent is true
+  - Minimal UI wiring for buttons exposed in index.html
+*/
 
-async function loadArtilheiros(){
-  try{
-    const res = await fetch('/api/sports/brasileirao-artilheiros');
-    const data = await res.json();
-    const list = data.response || [];
-    let html = `<table class="mini-table"><thead><tr><th>Jogador</th><th>Time</th><th>Gols</th></tr></thead><tbody>`;
-    list.forEach(p=>{
-      const player = p.player || {};
-      const stats = p.statistics?.[0] || {};
-      const team = stats.team || {};
-      const goals = stats.goals?.total ?? '-';
-      html += `<tr><td><img src="${player.photo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${player.name}</td><td><img src="${team.logo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${team.name||''}</td><td>${goals}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-    const el = document.getElementById('artilheirosTable'); if(el) el.innerHTML = html;
-    // render chart if Chart.js available
-    try{ if(window.Chart) renderGraficoArtilheiros(data.response || []); }catch(e){}
-  }catch(e){ console.warn(e); const el=document.getElementById('artilheirosTable'); if(el) el.innerHTML = '<p>Erro ao carregar artilheiros.</p>'; }
-}
+/*
+    Replaced with a single, minimal clean implementation.
+    This file intentionally small and focused to resolve merge-conflict artifacts.
+*/
 
-// Chart renderers (Chart.js)
-function renderGraficoArtilheiros(players){
-  try{
-    const top = (players || []).slice(0,10);
-    const nomes = top.map(p=>p.player?.name || '');
-    const gols = top.map(p=>p.statistics?.[0]?.goals?.total ?? 0);
-    const el = document.getElementById('chartArtilheiros'); if(!el) return;
-    const ctx = el.getContext('2d');
-    if(window._chartArtilheiros) window._chartArtilheiros.destroy();
-    window._chartArtilheiros = new Chart(ctx, {
-      type: 'bar',
-      data: { labels: nomes, datasets: [{ label: 'Goals', data: gols, backgroundColor: 'rgba(46,204,113,0.7)' }] },
-      options: { responsive: true, plugins:{ legend:{ display:false }, title:{ display:true, text:'Top Scorers - Série A' } }, scales:{ x:{ title:{ display:true, text:'Player' } }, y:{ title:{ display:true, text:'Goals' }, beginAtZero:true } } }
-    });
-  }catch(e){ console.warn('chart artilheiros failed', e); }
-}
+(function(){
+    'use strict';
 
-// Serie B loader (uses server proxy endpoint)
-async function loadSerieB(){
-  try{
-    const res = await fetch('/api/sports/brasileirao-b-tabela');
-    const data = await res.json();
-    const standings = data.response?.[0]?.league?.standings?.[0];
-    if(!standings) { const el=document.getElementById('serieBTable'); if(el) el.innerHTML = '<p>Nenhum dado disponível.</p>'; return; }
-    let html = `<table class="mini-table"><thead><tr><th>Pos</th><th>Time</th><th>Pts</th></tr></thead><tbody>`;
-    standings.forEach(team=>{
-      html += `<tr><td>${team.rank}</td><td><img src="${team.team.logo}" style="height:18px;vertical-align:middle;margin-right:6px"> ${team.team.name}</td><td>${team.points}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-    const el = document.getElementById('serieBTable'); if(el) el.innerHTML = html;
-  }catch(e){ console.warn(e); const el=document.getElementById('serieBTable'); if(el) el.innerHTML = '<p>Erro ao carregar Serie B.</p>'; }
-}
+    const COINS_KEY = 'fap_user_coins_v1';
+    const CONSENT_KEY = 'fap_user_consent_v1';
 
-// Copa do Brasil loaders require caller to pass league id via query param or configure appropriately.
-async function loadCopaTabela(leagueId){
-  try{
-    if(!leagueId){ const el=document.getElementById('copaTable'); if(el) el.innerHTML = '<p>League id required for Copa do Brasil data.</p>'; return; }
-    const res = await fetch(`/api/sports/copadobrasil-tabela?league=${leagueId}`);
-    const data = await res.json();
-    const standings = data.response?.[0]?.league?.standings?.[0];
-    if(!standings) { document.getElementById('copaTable').innerHTML = '<p>Nenhum dado disponível.</p>'; return; }
-    let html = `<table class="mini-table"><thead><tr><th>Pos</th><th>Time</th><th>Pts</th></tr></thead><tbody>`;
-    standings.forEach(team=>{
-      html += `<tr><td>${team.rank}</td><td><img src="${team.team.logo}" style="height:18px;vertical-align:middle;margin-right:6px"> ${team.team.name}</td><td>${team.points}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-    const el = document.getElementById('copaTable'); if(el) el.innerHTML = html;
-  }catch(e){ console.warn(e); const el=document.getElementById('copaTable'); if(el) el.innerHTML = '<p>Erro ao carregar Copa do Brasil.</p>'; }
-}
+    let currentUser = null;
+    let userCoins = 0;
 
-async function loadArtilheirosSerieB(){
-  try{
-    const res = await fetch('/api/sports/brasileirao-b-artilheiros');
-    const data = await res.json();
-    const list = data.response || [];
-    let html = `<table class="mini-table"><thead><tr><th>Jogador</th><th>Time</th><th>Gols</th></tr></thead><tbody>`;
-    list.forEach(p=>{
-      const player = p.player || {};
-      const stats = p.statistics?.[0] || {};
-      const team = stats.team || {};
-      const goals = stats.goals?.total ?? '-';
-      html += `<tr><td><img src="${player.photo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${player.name}</td><td><img src="${team.logo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${team.name||''}</td><td>${goals}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-    const el = document.getElementById('artilheirosSerieB'); if(el) el.innerHTML = html;
-  }catch(e){ console.warn(e); const el=document.getElementById('artilheirosSerieB'); if(el) el.innerHTML = '<p>Erro ao carregar artilheiros Serie B.</p>'; }
-}
+    const $id = id => document.getElementById(id);
 
-async function loadArtilheirosCopa(leagueId){
-  try{
-    if(!leagueId){ const el=document.getElementById('artilheirosCopa'); if(el) el.innerHTML = '<p>League id required for Copa artilheiros.</p>'; return; }
-    const res = await fetch(`/api/sports/copadobrasil-artilheiros?league=${leagueId}`);
-    const data = await res.json();
-    const list = data.response || [];
-    let html = `<table class="mini-table"><thead><tr><th>Jogador</th><th>Time</th><th>Gols</th></tr></thead><tbody>`;
-    list.forEach(p=>{
-      const player = p.player || {};
-      const stats = p.statistics?.[0] || {};
-      const team = stats.team || {};
-      const goals = stats.goals?.total ?? '-';
-      html += `<tr><td><img src="${player.photo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${player.name}</td><td><img src="${team.logo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${team.name||''}</td><td>${goals}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-    const el = document.getElementById('artilheirosCopa'); if(el) el.innerHTML = html;
-  }catch(e){ console.warn(e); const el=document.getElementById('artilheirosCopa'); if(el) el.innerHTML = '<p>Erro ao carregar artilheiros Copa do Brasil.</p>'; }
-}
+    function loadCoins(){ try{ const v = localStorage.getItem(COINS_KEY); userCoins = v===null?0:parseInt(v,10)||0; }catch(e){ userCoins = 0; } }
+    function saveCoins(){ try{ localStorage.setItem(COINS_KEY, String(userCoins)); }catch(e){} }
 
-// Generic renderer helpers
-function renderPlayersTable(containerId, list, valuePathFn){
-  const targets = [];
-  const primary = document.getElementById(containerId);
-  if(primary) targets.push(primary);
-  // legacy/id variants: append 'Table' or 'Table' in different positions
-  const legacy1 = document.getElementById(`${containerId}Table`);
-  if(legacy1) targets.push(legacy1);
-  const legacy2 = document.getElementById(containerId.replace('Serie','Serie') + 'Table');
-  if(legacy2 && !targets.includes(legacy2)) targets.push(legacy2);
-  if(targets.length === 0) return;
-  if(!Array.isArray(list) || list.length===0){ targets.forEach(t => t.innerHTML = '<p>Nenhum dado disponível.</p>'); return; }
-  let html = `<table class="mini-table"><thead><tr><th>Jogador</th><th>Time</th><th>Stat</th></tr></thead><tbody>`;
-  list.forEach(p=>{
-    const player = p.player || {};
-    const stats = p.statistics?.[0] || {};
-    const team = stats.team || {};
-    const val = valuePathFn(p, stats) ?? '-';
-    html += `<tr><td><img src="${player.photo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${player.name}</td><td><img src="${team.logo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${team.name||''}</td><td>${val}</td></tr>`;
-  });
-  html += `</tbody></table>`;
-  targets.forEach(t => t.innerHTML = html);
-}
+    function readConsent(){ try{ const raw = localStorage.getItem(CONSENT_KEY); return raw?JSON.parse(raw):{analytics:false,ads:false,backend:false}; }catch(e){ return {analytics:false,ads:false,backend:false}; } }
+    function saveConsent(obj){ try{ localStorage.setItem(CONSENT_KEY, JSON.stringify(obj||{})); }catch(e){} }
 
-// Assistências renderers
-async function loadAssistenciasSerieA(){
-  try{
-    const res = await fetch('/api/sports/brasileirao-assistencias');
-    const data = await res.json();
-    renderPlayersTable('assistenciasSerieA', data.response || [], (p, stats) => stats.goals?.assists ?? '-');
-    try{ if(window.Chart) renderGraficoAssistencias(data.response || []); }catch(e){}
-  }catch(e){ console.warn(e); const el=document.getElementById('assistenciasSerieA'); if(el) el.innerHTML = '<p>Erro ao carregar assistências.</p>'; }
-}
+    function showToast(msg, ttl=2000){ const t = document.createElement('div'); t.className = 'fap-toast'; t.textContent = msg; t.style = 'position:fixed;right:12px;bottom:24px;background:#222;color:#fff;padding:8px 12px;border-radius:6px;z-index:99999;'; document.body.appendChild(t); setTimeout(()=>t.remove(), ttl); }
 
-function renderGraficoAssistencias(players){
-  try{
-    const top = (players || []).slice(0,10);
-    const nomes = top.map(p=>p.player?.name || '');
-    const assists = top.map(p=>p.statistics?.[0]?.goals?.assists ?? 0);
-    const el = document.getElementById('chartAssistencias'); if(!el) return;
-    const ctx = el.getContext('2d');
-    if(window._chartAssistencias) window._chartAssistencias.destroy();
-    window._chartAssistencias = new Chart(ctx, { type:'bar', data:{ labels:nomes, datasets:[{ label:'Assists', data:assists, backgroundColor:'rgba(52,152,219,0.7)' }] }, options:{ responsive:true } });
-  }catch(e){ console.warn('chart assists failed', e); }
-}
-async function loadAssistenciasSerieB(){
-  try{ const res = await fetch('/api/sports/brasileirao-b-assistencias'); const data = await res.json(); renderPlayersTable('assistenciasSerieB', data.response || [], (p, stats) => stats.goals?.assists ?? '-'); }catch(e){ console.warn(e); const el=document.getElementById('assistenciasSerieB'); if(el) el.innerHTML = '<p>Erro ao carregar assistências.</p>'; }
-}
-async function loadAssistenciasCopa(leagueId){ if(!leagueId){ const el=document.getElementById('assistenciasCopa'); if(el) el.innerHTML = '<p>League id required.</p>'; return; } try{ const res = await fetch(`/api/sports/copadobrasil-assistencias?league=${leagueId}`); const data = await res.json(); renderPlayersTable('assistenciasCopa', data.response || [], (p, stats) => stats.goals?.assists ?? '-'); }catch(e){ console.warn(e); const el=document.getElementById('assistenciasCopa'); if(el) el.innerHTML = '<p>Erro ao carregar assistências Copa.</p>'; } }
+    function animateCoinGain(n){ const el = document.createElement('div'); el.textContent = `+${n} 💰`; el.style = 'position:fixed;right:18px;bottom:90px;background:#f1c40f;color:#000;padding:6px 10px;border-radius:16px;z-index:99999;'; document.body.appendChild(el); setTimeout(()=>el.remove(),1200); }
 
-// Cards renderer (yellow/red)
-async function loadCartoesSerieA(){ try{ const res = await fetch('/api/sports/brasileirao-cartoes'); const data = await res.json(); renderPlayersTable('cartoesSerieA', data.response || [], (p, stats) => `${stats.cards?.yellow||0} Y / ${stats.cards?.red||0} R`); }catch(e){ console.warn(e); const el=document.getElementById('cartoesSerieA'); if(el) el.innerHTML = '<p>Erro ao carregar cartões.</p>'; } }
-async function loadCartoesSerieB(){ try{ const res = await fetch('/api/sports/brasileirao-b-cartoes'); const data = await res.json(); renderPlayersTable('cartoesSerieB', data.response || [], (p, stats) => `${stats.cards?.yellow||0} Y / ${stats.cards?.red||0} R`); }catch(e){ console.warn(e); const el=document.getElementById('cartoesSerieB'); if(el) el.innerHTML = '<p>Erro ao carregar cartões.</p>'; } }
-async function loadCartoesCopa(leagueId){ if(!leagueId){ const el=document.getElementById('cartoesCopa'); if(el) el.innerHTML = '<p>League id required.</p>'; return; } try{ const res = await fetch(`/api/sports/copadobrasil-cartoes?league=${leagueId}`); const data = await res.json(); renderPlayersTable('cartoesCopa', data.response || [], (p, stats) => `${stats.cards?.yellow||0} Y / ${stats.cards?.red||0} R`); }catch(e){ console.warn(e); const el=document.getElementById('cartoesCopa'); if(el) el.innerHTML = '<p>Erro ao carregar cartões Copa.</p>'; } }
+    async function signIn(){ currentUser = { name: 'LocalUser', userId: `local-${Date.now()}` }; if(userCoins<=0) userCoins = 500; saveCoins(); updateAuthUi(); showToast(`Bem-vindo, ${currentUser.name}!`); }
+    async function signOut(){ currentUser = null; userCoins = 0; saveCoins(); updateAuthUi(); showToast('Você saiu.'); }
 
-// Goalkeepers renderer (clean sheets)
-async function loadGoleirosSerieA(){
-  try{
-    const res = await fetch('/api/sports/brasileirao-goleiros');
-    const data = await res.json();
-    renderPlayersTable('goleirosSerieA', data.response || [], (p, stats) => stats.games?.cleansheets ?? (stats.games?.appearences? 0 : '-'));
-    try{ if(window.Chart) renderGraficoGoleiros(data.response || []); }catch(e){}
-  }catch(e){ console.warn(e); const el=document.getElementById('goleirosSerieA'); if(el) el.innerHTML = '<p>Erro ao carregar goleiros.</p>'; }
-}
+    function updateAuthUi(){ const s = $id('signInButton'); const so = $id('signOutButton'); const up = $id('userProfile'); const uc = $id('userCoins'); if(currentUser){ if(s) s.style.display='none'; if(so) so.style.display='inline-block'; if(up) up.style.display='flex'; if(uc) uc.textContent = userCoins; } else { if(s) s.style.display='inline-block'; if(so) so.style.display='none'; if(up) up.style.display='none'; if(uc) uc.textContent = userCoins; } }
 
-function renderGraficoGoleiros(players){
-  try{
-    const top = (players || []).slice(0,10);
-    const nomes = top.map(p=>p.player?.name || '');
-    const cleans = top.map(p=>p.statistics?.[0]?.games?.cleansheets ?? 0);
-    const el = document.getElementById('chartGoleiros'); if(!el) return;
-    const ctx = el.getContext('2d');
-    if(window._chartGoleiros) window._chartGoleiros.destroy();
-    window._chartGoleiros = new Chart(ctx, { type:'bar', data:{ labels:nomes, datasets:[{ label:'Clean Sheets', data:cleans, backgroundColor:'rgba(241,196,15,0.8)' }] }, options:{ responsive:true } });
-  }catch(e){ console.warn('chart goleiros failed', e); }
-}
-async function loadGoleirosSerieB(){ try{ const res = await fetch('/api/sports/brasileirao-b-goleiros'); const data = await res.json(); renderPlayersTable('goleirosSerieB', data.response || [], (p, stats) => stats.games?.cleansheets ?? '-'); }catch(e){ console.warn(e); const el=document.getElementById('goleirosSerieB'); if(el) el.innerHTML = '<p>Erro ao carregar goleiros.</p>'; } }
-async function loadGoleirosCopa(leagueId){ if(!leagueId){ const el=document.getElementById('goleirosCopa'); if(el) el.innerHTML = '<p>League id required.</p>'; return; } try{ const res = await fetch(`/api/sports/copadobrasil-goleiros?league=${leagueId}`); const data = await res.json(); renderPlayersTable('goleirosCopa', data.response || [], (p, stats) => stats.games?.cleansheets ?? '-'); }catch(e){ console.warn(e); const el=document.getElementById('goleirosCopa'); if(el) el.innerHTML = '<p>Erro ao carregar goleiros Copa.</p>'; } }
+    async function postScoreIfAllowed(game, score){ try{ const consent = readConsent(); if(!consent.backend) return; if(!currentUser) return; await fetch('/api/ranking', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ game, nome: currentUser.name||'Anon', pontos: Number(score)||0 }) }); }catch(e){ console.warn('postScore failed', e); } }
 
-// Upcoming matches renderer
-async function loadProximosMatches(){ try{ const res = await fetch('/api/sports/brasileirao-proximos'); const data = await res.json(); const list = data.response || []; const el = document.getElementById('proximosMatches'); if(!el) return; if(!Array.isArray(list) || list.length===0){ el.innerHTML = '<p>Nenhum próximo jogo encontrado.</p>'; return; } let html = `<table class="mini-table"><thead><tr><th>Data</th><th>Casa</th><th>Visitante</th><th>Competição</th></tr></thead><tbody>`; list.forEach(match=>{ const fixture = match.fixture || {}; const teams = match.teams || {}; html += `<tr><td>${fixture.date? new Date(fixture.date).toLocaleString(): '-'}</td><td><img src="${teams.home?.logo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${teams.home?.name||''}</td><td><img src="${teams.away?.logo||''}" style="height:18px;vertical-align:middle;margin-right:6px"> ${teams.away?.name||''}</td><td>${match.league?.name||''}</td></tr>`; }); html += `</tbody></table>`; el.innerHTML = html; }catch(e){ console.warn(e); const el=document.getElementById('proximosMatches'); if(el) el.innerHTML = '<p>Erro ao carregar próximos jogos.</p>'; } }
-function checkBackendStatus(){ if(backendStatusText) backendStatusText.textContent='Servidor Online'; if(backendStatusIndicator) { backendStatusIndicator.classList.remove('status-loading'); backendStatusIndicator.classList.add('status-online'); } }
+    async function openGame(name){ const area = $id('gameContentArea'); if(!area){ showToast('Área do jogo não encontrada'); return; } if(!currentUser){ showToast('Faça login para jogar e ganhar moedas'); return; } area.innerHTML = '<p>Carregando minijogo...</p>'; try{ let mod; switch((name||'').toLowerCase()){ case 'precisao': mod = await import('./games/precisao.js'); break; case 'goleiro': mod = await import('./games/goleiro.js'); break; case 'fisico': mod = await import('./games/fisico.js'); break; case 'ranking': mod = await import('./games/ranking.js'); break; default: area.innerHTML = `<p>Minigame ${name} não encontrado</p>`; return; }
+        const onFinish = async (score) => { const coins = Math.max(0, Math.round((score||0)/5)); if(coins>0){ userCoins += coins; saveCoins(); const uc = $id('userCoins'); if(uc) uc.textContent = userCoins; animateCoinGain(coins); showToast(`+${coins} moedas`); } await postScoreIfAllowed(name, score); };
+        area.innerHTML = '';
+        if(mod && typeof mod.render === 'function') mod.render(area, onFinish);
+        else if(mod && typeof mod.renderPrecisaoGame === 'function') mod.renderPrecisaoGame(area, onFinish);
+        else if(mod && typeof mod.renderGoleiroGame === 'function') mod.renderGoleiroGame(area, onFinish);
+        else if(mod && typeof mod.renderFisicoGame === 'function') mod.renderFisicoGame(area, onFinish);
+        else if(mod && typeof mod.renderGlobalRanking === 'function') mod.renderGlobalRanking(area, name);
+        else area.innerHTML = '<p>Minigame carregado (sem renderer).</p>';
+    } catch(err){ console.warn(err); area.innerHTML = '<p>Erro ao carregar o minigame.</p>'; } }
 
-function navigateTo(pageId){ pages.forEach(p=>p.classList.remove('active')); const t=document.getElementById(pageId); if(t) t.classList.add('active'); navButtons.forEach(b=> b.getAttribute('data-page')===pageId? b.classList.add('active'): b.classList.remove('active')); history.pushState(null,null,`#${pageId}`); }
+    function quickQuery(q){ if(!currentUser){ showToast('Faça login para usar a IA'); return; } interactionsCount++; const G = 5; userCoins += G; saveCoins(); const uc = $id('userCoins'); if(uc) uc.textContent = userCoins; animateCoinGain(G); showToast(`+${G} moedas`); if($id('iaResponse')) $id('iaResponse').innerHTML = `<p>Resposta simulada para: ${q}</p>`; }
 
-// Keep simple load flags to avoid refetching repeatedly
-const _loaded = { serieA: false, artilheiros: false, serieB: false, artilheirosB: false, assistA:false, assistB:false, cardsA:false, cardsB:false, gkA:false, gkB:false, next:false, copa:false, artilheirosCopa:false, assistCopa:false, cardsCopa:false, gkCopa:false };
+    function wireUi(){ const s = $id('signInButton'); const so = $id('signOutButton'); if(s) s.addEventListener('click', signIn); if(so) so.addEventListener('click', signOut); const saveC = $id('saveConsentBtn'); if(saveC) saveC.addEventListener('click', ()=>{ const newC = { analytics: !!($id('cons_analytics')&&$id('cons_analytics').checked), ads: !!($id('cons_ads')&&$id('cons_ads').checked), backend: !!($id('cons_backend')&&$id('cons_backend').checked) }; saveConsent(newC); applyConsentWorkflows(); const m = $id('consentModal'); if(m) m.style.display='none'; showToast('Preferências salvas'); }); }
 
+    window.openGame = openGame;
+    window.quickQuery = quickQuery;
+    window.endGame = function(){ saveCoins(); showToast('Jogo finalizado. Moedas salvas.'); };
+    window.acceptAllConsent = function(){ saveConsent({analytics:true,ads:true,backend:true}); applyConsentWorkflows(); const b = $id('consentBanner'); if(b) b.style.display='none'; showToast('Consentimento aceito'); };
+    window.rejectAllConsent = function(){ saveConsent({analytics:false,ads:false,backend:false}); const b = $id('consentBanner'); if(b) b.style.display='none'; showToast('Consentimento rejeitado'); };
 
-// Wiring
-document.addEventListener('DOMContentLoaded', ()=>{
-  const cs=document.getElementById('consentSettingsBtn'); if(cs) cs.addEventListener('click', ()=>{ const m=document.getElementById('consentModal'); if(m) m.style.display='flex'; });
-  const sv=document.getElementById('saveConsentBtn'); if(sv) sv.addEventListener('click', ()=>{
-    const newC={ analytics: !!document.getElementById('cons_analytics')?.checked, ads: !!document.getElementById('cons_ads')?.checked, backend: !!document.getElementById('cons_backend')?.checked };
-    // Persist locally
-    setConsent(newC);
-    // Try to persist server-side (sets cookie for server-side injection)
-    fetch('/api/consent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newC)
-    }).then(r=>{
-      if(!r.ok) throw new Error('server rejected consent');
-      return r.json();
-    }).then(()=>{
-      applyConsentScripts(newC);
-      const m=document.getElementById('consentModal'); if(m) m.style.display='none'; showToast('Consent saved');
-    }).catch(err=>{
-      console.warn('Failed to persist consent to server', err);
-      // Fallback: still apply and inform the user
-      applyConsentScripts(newC);
-      const m=document.getElementById('consentModal'); if(m) m.style.display='none'; showToast('Consent saved locally (server unavailable)');
-    });
-  });
-  const cancel=document.getElementById('cancelConsentBtn'); if(cancel) cancel.addEventListener('click', ()=>{ const m=document.getElementById('consentModal'); if(m) m.style.display='none'; });
-  navButtons.forEach(b=> b.addEventListener('click', e=>{ e.preventDefault(); const id=b.getAttribute('data-page'); navigateTo(id); }));
-  if(signInButton) signInButton.addEventListener('click', signIn); if(signOutButton) signOutButton.addEventListener('click', signOut);
-  try{ const cfg=JSON.parse(localStorage.getItem('fap_firebase_cfg')||'null'); if(cfg) initFirebaseFromConfig(cfg); }catch(e){}
-  showConsentBannerIfNeeded();
-  // On load, if consent exists, apply scripts
-  try{ const c=JSON.parse(localStorage.getItem(CONSENT_KEY)||'null'); if(c) applyConsentScripts(c); }catch(e){}
-  // Populate radar selects when DOM is ready
-  try{ populateTimesRadar(); populateJogadoresRadar(); }catch(e){}
-  // Contact form submission (AJAX)
-  try{
-    const contactForm = document.getElementById('contactForm');
-    const contactSuccess = document.getElementById('contactSuccess');
-    const contactError = document.getElementById('contactError');
-    if(contactForm){
-      contactForm.addEventListener('submit', async (ev)=>{
-        ev.preventDefault();
-        if(contactSuccess) contactSuccess.style.display='none';
-        if(contactError) contactError.style.display='none';
-        const name = (document.getElementById('contactName')?.value||'').trim();
-        const email = (document.getElementById('contactEmail')?.value||'').trim();
-        const message = (document.getElementById('contactMessage')?.value||'').trim();
-        if(!name||!email||!message){ if(contactError){ contactError.textContent='Preencha todos os campos.'; contactError.style.display='block'; } return; }
-        // Optional reCAPTCHA
-        let recaptchaToken = null;
-        if(window.grecaptcha && typeof grecaptcha.getResponse === 'function'){
-          try{ recaptchaToken = grecaptcha.getResponse(); }catch(e){}
+    window.addEventListener('load', ()=>{ loadCoins(); updateAuthUi(); applyConsentWorkflows(); wireUi(); const uc = $id('userCoins'); if(uc) uc.textContent = userCoins; const h = location.hash.replace('#',''); if(h && $id(h)){ document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active')); $id(h).classList.add('active'); } else { if($id('home')){ document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active')); $id('home').classList.add('active'); } } });
+
+    function updateAuthUi(){ const s = $id('signInButton'); const so = $id('signOutButton'); const up = $id('userProfile'); const uc = $id('userCoins'); if(currentUser){ if(s) s.style.display='none'; if(so) so.style.display='inline-block'; if(up) up.style.display='flex'; if(uc) uc.textContent = userCoins; } else { if(s) s.style.display='inline-block'; if(so) so.style.display='none'; if(up) up.style.display='none'; if(uc) uc.textContent = userCoins; } }
+
+})();
+/*
+    Clean unified frontend script for FutebolAnalyticsPro
+    - Consent (CMP) with persistence
+    - Analytics/Ads lazy-loading (consent-gated)
+    - Local sign-in fallback and simple profile UI
+    - Coin persistence in localStorage and coin animations
+    - Dynamic minigame loading via import()
+    - Posting scores to /api/ranking when backend consent is granted
+    - Simple metrics dashboard (session time, interactions, games played)
+    - SPA hash navigation
+*/
+
+(function (){
+    'use strict';
+
+    // Keys
+    const COINS_KEY = 'fap_user_coins_v1';
+    const CONSENT_KEY = 'fap_user_consent_v1';
+
+    // State
+    let currentUser = null;
+    let userCoins = 0;
+    let startTime = Date.now();
+    let interactionsCount = 0;
+    let gamesPlayedCount = 0;
+    let engagementScore = 0;
+
+    // Helpers
+    const $id = id => document.getElementById(id);
+    const qAll = sel => Array.from(document.querySelectorAll(sel || '*'));
+
+    // DOM refs (safe guards)
+    const signInButton = $id('signInButton');
+    const signOutButton = $id('signOutButton');
+    const userProfile = $id('userProfile');
+    const userCoinsDisplay = $id('userCoins');
+    const toastContainer = $id('toastContainer');
+    const navButtons = qAll('.nav-btn');
+    const pages = qAll('.page');
+    const iaResponseDiv = $id('iaResponse');
+    const serieATableDiv = $id('serieATable');
+    const serieBTableDiv = $id('serieBTable');
+    const featuredMatchesDiv = $id('featuredMatches');
+    const backendStatusIndicator = document.querySelector('.status-indicator');
+    const backendStatusText = $id('statusText');
+    const statusDetails = $id('statusDetails');
+
+    // --- storage helpers ---
+    function loadCoins(){ try{ const v=localStorage.getItem(COINS_KEY); userCoins = v===null?0:parseInt(v,10)||0; }catch(e){ userCoins=0; } }
+    function saveCoins(){ try{ localStorage.setItem(COINS_KEY, String(userCoins)); }catch(e){} }
+
+    function readConsent(){ try{ const raw=localStorage.getItem(CONSENT_KEY); return raw?JSON.parse(raw):{analytics:false,ads:false,backend:false}; }catch(e){ return {analytics:false,ads:false,backend:false}; } }
+    function saveConsent(obj){ try{ localStorage.setItem(CONSENT_KEY, JSON.stringify(obj||{})); }catch(e){} }
+    function getConsent(kind){ return !!(readConsent() && readConsent()[kind]); }
+
+    // Lazy load scripts that were marked with data-consent
+    function lazyLoadScriptsFor(selector){ const scripts=document.querySelectorAll(selector); scripts.forEach(s=>{ if(s.dataset.src){ const ns=document.createElement('script'); ns.async=true; ns.src=s.dataset.src; if(s.dataset.crossorigin) ns.crossOrigin=s.dataset.crossorigin; document.head.appendChild(ns); } else if(s.textContent){ const ns=document.createElement('script'); ns.textContent = s.textContent; document.head.appendChild(ns); } }); }
+    function applyConsentWorkflows(){ const c=readConsent(); if(c.analytics) lazyLoadScriptsFor('script[data-consent="analytics"]'); if(c.ads) lazyLoadScriptsFor('script[data-consent="ads"]'); }
+
+    // Simple toast
+    function showToast(msg, opts={ttl:3000}){ if(!toastContainer) return; const t=document.createElement('div'); t.className='toast'; t.textContent = msg; toastContainer.appendChild(t); requestAnimationFrame(()=>t.classList.add('show')); setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, opts.ttl); }
+
+    // Coin animation (small reusable)
+    function animateCoinGain(n){ const el=document.createElement('div'); el.className='coin-fly'; el.textContent=`+${n} 💰`; el.style.cssText='position:fixed;top:80px;right:12%;background:#f1c40f;padding:6px 12px;border-radius:20px;z-index:9999;opacity:0;transform:translateY(12px);transition:all .45s'; document.body.appendChild(el); requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform='translateY(0)'; }); setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(-20px)'; },1400); setTimeout(()=>el.remove(),1800); }
+
+    // Auth UI updates
+    function updateAuthUi(){ if(currentUser){ if(signInButton) signInButton.style.display='none'; if(signOutButton) signOutButton.style.display='inline-block'; if(userProfile) userProfile.style.display='flex'; if(userCoinsDisplay) userCoinsDisplay.textContent=userCoins; } else { if(signInButton) signInButton.style.display='inline-block'; if(signOutButton) signOutButton.style.display='none'; if(userProfile) userProfile.style.display='none'; } }
+
+    // Minimal sign-in fallback (local-only, or use Firebase if present)
+    async function signIn(){
+        // If firebase is configured, prefer it (best-effort)
+        if(window.firebase && firebase.auth){
+            try{
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const res = await firebase.auth().signInWithPopup(provider);
+                const user = res.user;
+                currentUser = { name: user.displayName || user.email, userId: user.uid, photoURL: user.photoURL };
+                // keep coins in local fallback
+                if(userCoins<=0) userCoins = 500;
+                saveCoins();
+                updateAuthUi();
+                showToast(`Bem-vindo, ${currentUser.name}!`);
+                loadRestrictedContent();
+                return;
+            }catch(e){ console.warn('firebase signin failed', e); }
         }
-        try{
-          const resp = await fetch('/api/contact', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ name, email, message, recaptcha: recaptchaToken }) });
-          const body = await resp.json().catch(()=>({}));
-          if(resp.ok && body && body.message){ if(contactSuccess){ contactSuccess.style.display='block'; contactForm.reset(); } }
-          else { if(contactError){ contactError.textContent = body.error || 'Falha ao enviar. Tente novamente.'; contactError.style.display='block'; } }
-        }catch(e){ if(contactError){ contactError.textContent = 'Erro inesperado: '+(e && e.message ? e.message : 'network error'); contactError.style.display='block'; } }
-      });
+
+        // If backend consent and /api/auth exists, try server flow
+        if(getConsent('backend')){
+            try{
+                const fakeEmail = `local+${Date.now()}@example.com`;
+                const r = await fetch('/api/auth',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: 'Analista Pro', email: fakeEmail }) });
+                if(r.ok){ const user = await r.json(); currentUser = user; }
+            }catch(e){ /* fallback below */ }
+        }
+
+        // Final fallback: local user
+        if(!currentUser) currentUser = { name: 'LocalUser', userId: `local-${Date.now()}` };
+        if(userCoins<=0) userCoins = 500;
+        saveCoins(); updateAuthUi(); showToast('Assinado (modo local)'); loadRestrictedContent();
     }
-  }catch(e){ console.warn('contact form init failed', e); }
+
+    async function signOut(){ if(window.firebase && firebase.auth){ try{ await firebase.auth().signOut(); }catch(e){} } currentUser = null; saveCoins(); userCoins = 0; updateAuthUi(); showToast('Você saiu.'); }
+
+    // Game opening: dynamic import and render. Requires a logged user to gain coins.
+    async function openGame(name){ const area = $id('gameContentArea'); if(!area) return; if(!currentUser){ showToast('Faça login para jogar e ganhar moedas'); return; } area.innerHTML = '<p>Carregando...</p>'; try{ let mod; switch((name||'').toLowerCase()){ case 'precisao': mod = await import('./games/precisao.js'); break; case 'goleiro': mod = await import('./games/goleiro.js'); break; case 'fisico': mod = await import('./games/fisico.js'); break; case 'ranking': mod = await import('./games/ranking.js'); break; default: area.innerHTML = `<p>Minigame não encontrado: ${name}</p>`; return; }
+            // onFinish contract: (score:Number) => Promise
+            const onFinish = async score => {
+                const coins = Math.max(0, Math.round((score||0)/5));
+                if(coins>0){ userCoins += coins; saveCoins(); if(userCoinsDisplay) userCoinsDisplay.textContent = userCoins; animateCoinGain(coins); showToast(`+${coins} moedas`); }
+                const consent = readConsent(); if(consent.backend){ try{ await fetch('/api/ranking',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ game: name, nome: currentUser.name||'Anonymous', pontos: score }) }); }catch(e){ console.warn('ranking post failed', e); } }
+            };
+
+            area.innerHTML = '';
+            // Prefer common renderer names used in games: renderPrecisaoGame/renderGoleiroGame/renderFisicoGame or renderGlobalRanking
+            if(mod.renderPrecisaoGame) mod.renderPrecisaoGame(area, onFinish);
+            else if(mod.renderGoleiroGame) mod.renderGoleiroGame(area, onFinish);
+            else if(mod.renderFisicoGame) mod.renderFisicoGame(area, onFinish);
+            else if(mod.renderGlobalRanking) mod.renderGlobalRanking(area, name);
+            else area.innerHTML = '<p>Minigame carregado, porém não possui renderer.</p>';
+        }catch(err){ console.warn(err); area.innerHTML = '<p>Erro ao carregar o minigame.</p>'; }
+    }
+
+    function endGame(){ const area = $id('gameContentArea'); if(area) area.innerHTML = '<p>Fim de jogo. Volte sempre!</p>'; saveCoins(); showToast('Jogo finalizado. Moedas salvas.'); }
+
+    // Quick query -> small coin reward
+    function quickQuery(q){ if(!currentUser){ if(iaResponseDiv) iaResponseDiv.innerHTML = '<p>🔒 Faça login para usar a IA</p>'; return; } interactionsCount++; const COIN_GAIN = 5; userCoins += COIN_GAIN; saveCoins(); if(userCoinsDisplay) userCoinsDisplay.textContent = userCoins; animateCoinGain(COIN_GAIN); showToast(`+${COIN_GAIN} moedas`); if(iaResponseDiv) iaResponseDiv.innerHTML = `<p>Processando consulta: ${q}...</p>`; setTimeout(()=>{ iaResponseDiv && (iaResponseDiv.innerHTML = `<p>Resposta simulada para ${q}.</p>`); updateMetrics(); },1200); }
+
+    // Metrics / dashboard
+    function updateMetrics(){ const now = Date.now(); const sessionSeconds = Math.floor((now - startTime)/1000); engagementScore = Math.min(((interactionsCount*1.5)+(gamesPlayedCount*3)+(sessionSeconds/120)), 10.0); const el = $id('sessionTime'); if(el) el.textContent = `${sessionSeconds}s`; const e1 = $id('interactions'); if(e1) e1.textContent = interactionsCount; const e2 = $id('gamesPlayed'); if(e2) e2.textContent = gamesPlayedCount; const e3 = $id('engagementScore'); if(e3) e3.textContent = engagementScore.toFixed(2); }
+
+    // Small utilities: render classification table for logged users
+    const CLASSIFICATION_DATA = { 'serieA': [ { pos:1, team:'Fluminense', pts:65, status:'Líder' }, { pos:2, team:'Flamengo', pts:62, status:'Libertadores' }, { pos:3, team:'Botafogo', pts:58, status:'Libertadores' }, { pos:4, team:'Palmeiras', pts:55, status:'Libertadores' }, { pos:5, team:'São Paulo', pts:50, status:'Sul-Americana' }, { pos:17, team:'Cruzeiro', pts:35, status:'Z4' } ], 'serieB':[ { pos:1, team:'Vasco', pts:72, status:'Acesso' }, { pos:2, team:'Bahia', pts:70, status:'Acesso' }, { pos:3, team:'Grêmio', pts:68, status:'Acesso' }, { pos:4, team:'Criciúma', pts:64, status:'Acesso' } ] };
+
+    function generateTableHTML(data){ let html = `<table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.95em;"><thead><tr style="background:#34495e;color:#fff"><th style="padding:10px">Pos.</th><th style="padding:10px">Time</th><th style="padding:10px">Pts</th><th style="padding:10px">Status</th></tr></thead><tbody>`; data.forEach(row=>{ let statusColor='#bdc3c7'; if(row.status==='Líder' || row.status==='Acesso') statusColor='#2ecc71'; if(row.status==='Z4') statusColor='#e74c3c'; if(row.status==='Libertadores') statusColor='#f1c40f'; html += `<tr style="border-bottom:1px solid #4a4a4a;"><td style="padding:8px">${row.pos}</td><td style="padding:8px;font-weight:600">${row.team}</td><td style="padding:8px">${row.pts}</td><td style="padding:8px;color:${statusColor}">${row.status}</td></tr>`; }); html += `</tbody></table>`; return html; }
+
+    function loadRestrictedContent(){ if(serieATableDiv) serieATableDiv.innerHTML = generateTableHTML(CLASSIFICATION_DATA.serieA); if(serieBTableDiv) serieBTableDiv.innerHTML = generateTableHTML(CLASSIFICATION_DATA.serieB); }
+
+    // Featured matches (consent-gated backend fetch)
+    function loadFeaturedMatches(){ if(!featuredMatchesDiv) return; if(getConsent('backend')){ fetch('/api/featured-matches').then(r=>r.json()).then(data=>{ const matches = data.matches||[]; if(matches.length===0){ featuredMatchesDiv.innerHTML = '<p>Sem jogos recentes.</p>'; return; } let html = '<h3>Próximos Jogos</h3><ul>'; matches.forEach(m=> html += `<li>${m.date} - ${m.match}</li>`); html += '</ul>'; featuredMatchesDiv.innerHTML = html; }).catch(()=>{ featuredMatchesDiv.innerHTML = '<p>Erro ao buscar (offline). Versão local: Flamengo vs Fluminense - Hoje 20:00</p>'; }); } else { featuredMatchesDiv.innerHTML = '<p>Flamengo vs Fluminense - Hoje 20:00 (local)</p>'; } }
+
+    // Backend status mock
+    function checkBackendStatus(){ setTimeout(()=>{ if(backendStatusText) backendStatusText.textContent = 'Servidor Online (dev)'; if(backendStatusIndicator) { backendStatusIndicator.classList.remove('status-loading'); backendStatusIndicator.classList.add('status-online'); } if(statusDetails) statusDetails.innerHTML = 'Conectado ao servidor local.'; }, 800); }
+
+    // SPA navigation
+    function navigateTo(pageId){ pages.forEach(p=>p.classList.remove('active')); const t = $id(pageId); if(t) t.classList.add('active'); navButtons.forEach(b=> b.classList.toggle('active', b.dataset.page===pageId)); try{ history.pushState(null,null, `#${pageId}`); }catch(e){} }
+    navButtons.forEach(b=> b.addEventListener('click', e=>{ e.preventDefault(); navigateTo(b.dataset.page); }));
+
+    // Attach UI controls for consent modal buttons (if present)
+    function wireConsentControls(){ const cs = $id('consentSettingsBtn'); if(cs) cs.addEventListener('click', ()=>{ const m = $id('consentModal'); if(m) m.style.display='flex'; const c = readConsent(); const ca = $id('cons_analytics'); const cad = $id('cons_ads'); const cb = $id('cons_backend'); if(ca) ca.checked = !!c.analytics; if(cad) cad.checked = !!c.ads; if(cb) cb.checked = !!c.backend; }); const saveC = $id('saveConsentBtn'); if(saveC) saveC.addEventListener('click', ()=>{ const newC = { analytics: !!($id('cons_analytics')&&$id('cons_analytics').checked), ads: !!($id('cons_ads')&&$id('cons_ads').checked), backend: !!($id('cons_backend')&&$id('cons_backend').checked) }; saveConsent(newC); applyConsentWorkflows(); const m = $id('consentModal'); if(m) m.style.display='none'; showToast('Preferências salvas'); }); const cancelC = $id('cancelConsentBtn'); if(cancelC) cancelC.addEventListener('click', ()=>{ const m = $id('consentModal'); if(m) m.style.display='none'; }); }
+
+    /*
+        Final clean app.js (single-file)
+        This file implements consent, coin persistence, simple auth fallback, dynamic game loading
+        and posting scores to /api/ranking only when backend consent is given.
+    */
+
+    (function(){
+        'use strict';
+
+        const COINS_KEY = 'fap_user_coins_v1';
+        const CONSENT_KEY = 'fap_user_consent_v1';
+
+        let currentUser = null;
+        let userCoins = 0;
+        let startTime = Date.now();
+        let interactionsCount = 0;
+        let gamesPlayedCount = 0;
+
+        const $id = id => document.getElementById(id);
+        const qAll = sel => Array.from(document.querySelectorAll(sel || '*'));
+
+        const signInButton = $id('signInButton');
+        const signOutButton = $id('signOutButton');
+        const userProfile = $id('userProfile');
+        const userCoinsDisplay = $id('userCoins');
+        const toastContainer = $id('toastContainer');
+        const navButtons = qAll('.nav-btn');
+        const pages = qAll('.page');
+
+        function loadCoins(){ try{ const v=localStorage.getItem(COINS_KEY); userCoins = v===null?0:parseInt(v,10)||0; }catch(e){ userCoins=0; } }
+        function saveCoins(){ try{ localStorage.setItem(COINS_KEY, String(userCoins)); }catch(e){} }
+
+        function readConsent(){ try{ const raw=localStorage.getItem(CONSENT_KEY); return raw?JSON.parse(raw):{analytics:false,ads:false,backend:false}; }catch(e){ return {analytics:false,ads:false,backend:false}; } }
+        function saveConsent(obj){ try{ localStorage.setItem(CONSENT_KEY, JSON.stringify(obj||{})); }catch(e){} }
+
+        function lazyLoadScriptsFor(selector){ const scripts=document.querySelectorAll(selector); scripts.forEach(s=>{ if(s.dataset.src){ const ns=document.createElement('script'); ns.async=true; ns.src=s.dataset.src; if(s.dataset.crossorigin) ns.crossOrigin=s.dataset.crossorigin; document.head.appendChild(ns); } else if(s.textContent){ const ns=document.createElement('script'); ns.textContent = s.textContent; document.head.appendChild(ns); } }); }
+        function applyConsentWorkflows(){ const c=readConsent(); if(c.analytics) lazyLoadScriptsFor('script[data-consent="analytics"]'); if(c.ads) lazyLoadScriptsFor('script[data-consent="ads"]'); }
+
+        function showToast(msg, opts={ttl:3000}){ if(!toastContainer) return; const t=document.createElement('div'); t.className='toast'; t.textContent = msg; toastContainer.appendChild(t); requestAnimationFrame(()=>t.classList.add('show')); setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, opts.ttl); }
+
+        function animateCoinGain(n){ const el=document.createElement('div'); el.className='coin-fly'; el.textContent=`+${n} 💰`; el.style.cssText='position:fixed;top:80px;right:12%;background:#f1c40f;padding:6px 12px;border-radius:20px;z-index:9999;opacity:0;transform:translateY(12px);transition:all .45s'; document.body.appendChild(el); requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform='translateY(0)'; }); setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(-20px)'; },1400); setTimeout(()=>el.remove(),1800); }
+
+        function updateAuthUi(){ if(currentUser){ if(signInButton) signInButton.style.display='none'; if(signOutButton) signOutButton.style.display='inline-block'; if(userProfile) userProfile.style.display='flex'; if(userCoinsDisplay) userCoinsDisplay.textContent = userCoins; } else { if(signInButton) signInButton.style.display='inline-block'; if(signOutButton) signOutButton.style.display='none'; if(userProfile) userProfile.style.display='none'; } }
+
+        async function signIn(){ if(window.firebase && firebase.auth){ try{ const provider = new firebase.auth.GoogleAuthProvider(); const res = await firebase.auth().signInWithPopup(provider); const user = res.user; currentUser = { name: user.displayName||user.email, userId: user.uid, photoURL: user.photoURL }; if(userCoins<=0) userCoins=500; saveCoins(); updateAuthUi(); showToast(`Bem-vindo, ${currentUser.name}!`); return; }catch(e){ console.warn('firebase signin failed', e); } }
+            if(readConsent().backend){ try{ const fakeEmail = `local+${Date.now()}@example.com`; const r = await fetch('/api/auth',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: 'Analista Pro', email: fakeEmail }) }); if(r.ok){ currentUser = await r.json(); } }catch(e){} }
+            if(!currentUser) currentUser = { name: 'LocalUser', userId: `local-${Date.now()}` }; if(userCoins<=0) userCoins = 500; saveCoins(); updateAuthUi(); showToast('Logado (local)'); }
+
+        async function signOut(){ if(window.firebase && firebase.auth){ try{ await firebase.auth().signOut(); }catch(e){} } currentUser=null; saveCoins(); userCoins=0; updateAuthUi(); showToast('Você saiu.'); }
+
+        async function openGame(name){ const area = $id('gameContentArea'); if(!area) return; if(!currentUser){ showToast('Faça login para jogar'); return; } area.innerHTML = '<p>Carregando...</p>'; try{ let mod; switch((name||'').toLowerCase()){ case 'precisao': mod = await import('./games/precisao.js'); break; case 'goleiro': mod = await import('./games/goleiro.js'); break; case 'fisico': mod = await import('./games/fisico.js'); break; case 'ranking': mod = await import('./games/ranking.js'); break; default: area.innerHTML = `<p>Minigame não encontrado: ${name}</p>`; return; }
+            const onFinish = async score => { const coins = Math.max(0, Math.round((score||0)/5)); if(coins>0){ userCoins+=coins; saveCoins(); if(userCoinsDisplay) userCoinsDisplay.textContent = userCoins; animateCoinGain(coins); showToast(`+${coins} moedas`); } if(readConsent().backend){ try{ await fetch('/api/ranking',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ game: name, nome: currentUser.name||'Anonymous', pontos: score }) }); }catch(e){ console.warn('ranking post failed', e); } } };
+            area.innerHTML = '';
+            if(mod.renderPrecisaoGame) mod.renderPrecisaoGame(area,onFinish); else if(mod.renderGoleiroGame) mod.renderGoleiroGame(area,onFinish); else if(mod.renderFisicoGame) mod.renderFisicoGame(area,onFinish); else if(mod.renderGlobalRanking) mod.renderGlobalRanking(area,name); else area.innerHTML = '<p>Minigame carregado sem renderer.</p>';
+        } catch(err){ console.warn(err); area.innerHTML = '<p>Erro ao carregar o minigame.</p>'; } }
+
+        function endGame(){ const area = $id('gameContentArea'); if(area) area.innerHTML = '<p>Fim de jogo. Volte sempre!</p>'; saveCoins(); showToast('Jogo finalizado.'); }
+
+        function quickQuery(q){ if(!currentUser){ if($id('iaResponse')) $id('iaResponse').innerHTML = '<p>🔒 Faça login para usar a IA</p>'; return; } interactionsCount++; const COIN_GAIN = 5; userCoins+=COIN_GAIN; saveCoins(); if(userCoinsDisplay) userCoinsDisplay.textContent = userCoins; animateCoinGain(COIN_GAIN); showToast(`+${COIN_GAIN} moedas`); if($id('iaResponse')) $id('iaResponse').innerHTML = `<p>Processando: ${q}</p>`; setTimeout(()=>{ if($id('iaResponse')) $id('iaResponse').innerHTML = `<p>Resposta simulada para ${q}.</p>`; }, 1200); }
+
+        function updateMetrics(){ const now=Date.now(); const s = Math.floor((now-startTime)/1000); const score = (interactionsCount*1.5)+(gamesPlayedCount*3)+(s/120); engagementScore = Math.min(score,10); if($id('sessionTime')) $id('sessionTime').textContent = `${s}s`; if($id('interactions')) $id('interactions').textContent = interactionsCount; if($id('gamesPlayed')) $id('gamesPlayed').textContent = gamesPlayedCount; if($id('engagementScore')) $id('engagementScore').textContent = engagementScore.toFixed(2); }
+
+        function generateTableHTML(data){ let html = `<table style="width:100%;border-collapse:collapse;text-align:left;"><thead><tr style="background:#34495e;color:#fff"><th style="padding:10px">Pos.</th><th style="padding:10px">Time</th><th style="padding:10px">Pts</th><th style="padding:10px">Status</th></tr></thead><tbody>`; data.forEach(r=>{ let sc='#bdc3c7'; if(r.status==='Líder' || r.status==='Acesso') sc='#2ecc71'; if(r.status==='Z4') sc='#e74c3c'; if(r.status==='Libertadores') sc='#f1c40f'; html += `<tr style="border-bottom:1px solid #4a4a4a;"><td style="padding:8px">${r.pos}</td><td style="padding:8px;font-weight:600">${r.team}</td><td style="padding:8px">${r.pts}</td><td style="padding:8px;color:${sc}">${r.status}</td></tr>` }); html += `</tbody></table>`; return html; }
+
+        const CLASSIFICATION_DATA = { 'serieA':[ {pos:1,team:'Fluminense',pts:65,status:'Líder'}, {pos:2,team:'Flamengo',pts:62,status:'Libertadores'}, {pos:3,team:'Botafogo',pts:58,status:'Libertadores'}, {pos:4,team:'Palmeiras',pts:55,status:'Libertadores'}, {pos:5,team:'São Paulo',pts:50,status:'Sul-Americana'}, {pos:17,team:'Cruzeiro',pts:35,status:'Z4'} ], 'serieB':[ {pos:1,team:'Vasco',pts:72,status:'Acesso'}, {pos:2,team:'Bahia',pts:70,status:'Acesso'}, {pos:3,team:'Grêmio',pts:68,status:'Acesso'}, {pos:4,team:'Criciúma',pts:64,status:'Acesso'} ] };
+
+        function loadRestrictedContent(){ if($id('serieATable')) $id('serieATable').innerHTML = generateTableHTML(CLASSIFICATION_DATA.serieA); if($id('serieBTable')) $id('serieBTable').innerHTML = generateTableHTML(CLASSIFICATION_DATA.serieB); }
+
+        function loadFeaturedMatches(){ const el = $id('featuredMatches'); if(!el) return; if(readConsent().backend){ fetch('/api/featured-matches').then(r=>r.json()).then(d=>{ const m = d.matches||[]; if(m.length===0){ el.innerHTML = '<p>Sem jogos recentes.</p>'; return; } el.innerHTML = '<h3>Próximos Jogos</h3><ul>'+m.map(x=>`<li>${x.date} - ${x.match}</li>`).join('')+'</ul>'; }).catch(()=>{ el.innerHTML = '<p>Versão local: Flamengo vs Fluminense - Hoje 20:00</p>'; }); } else { el.innerHTML = '<p>Flamengo vs Fluminense - Hoje 20:00 (local)</p>'; } }
+
+        function checkBackendStatus(){ setTimeout(()=>{ const st = $id('statusText'); if(st) st.textContent = 'Servidor local (dev)'; const ind = document.querySelector('.status-indicator'); if(ind){ ind.classList.remove('status-loading'); ind.classList.add('status-online'); } if($id('statusDetails')) $id('statusDetails').textContent = 'Conectado (dev)'; }, 800); }
+
+        function navigateTo(pageId){ pages.forEach(p=>p.classList.remove('active')); const t = $id(pageId); if(t) t.classList.add('active'); navButtons.forEach(b=> b.classList.toggle('active', b.dataset.page===pageId)); try{ history.replaceState(null,null,`#${pageId}`); }catch(e){} }
+
+        function wireUiControls(){ const cs = $id('consentSettingsBtn'); if(cs) cs.addEventListener('click', ()=>{ const m = $id('consentModal'); if(m) m.style.display='flex'; const c = readConsent(); if($id('cons_analytics')) $id('cons_analytics').checked = !!c.analytics; if($id('cons_ads')) $id('cons_ads').checked = !!c.ads; if($id('cons_backend')) $id('cons_backend').checked = !!c.backend; }); const saveC = $id('saveConsentBtn'); if(saveC) saveC.addEventListener('click', ()=>{ const newC = { analytics: !!($id('cons_analytics')&&$id('cons_analytics').checked), ads: !!($id('cons_ads')&&$id('cons_ads').checked), backend: !!($id('cons_backend')&&$id('cons_backend').checked) }; saveConsent(newC); applyConsentWorkflows(); const m = $id('consentModal'); if(m) m.style.display='none'; showToast('Preferências salvas'); }); const cancelC = $id('cancelConsentBtn'); if(cancelC) cancelC.addEventListener('click', ()=>{ const m = $id('consentModal'); if(m) m.style.display='none'; }); const fbBtn = $id('firebaseSetupBtn'); if(fbBtn) fbBtn.addEventListener('click', ()=>{ const m = $id('firebaseModal'); if(m) m.style.display='flex'; }); const saveFb = $id('saveFirebaseBtn'); if(saveFb) saveFb.addEventListener('click', ()=>{ const txt = $id('firebaseConfigInput'); if(!txt) return; try{ const obj = JSON.parse(txt.value); localStorage.setItem('fap_firebase_cfg', JSON.stringify(obj)); showToast('Firebase salvo localmente'); const m = $id('firebaseModal'); if(m) m.style.display='none'; }catch(e){ showToast('JSON inválido'); } }); const cancelFb = $id('cancelFirebaseBtn'); if(cancelFb) cancelFb.addEventListener('click', ()=>{ const m = $id('firebaseModal'); if(m) m.style.display='none'; }); }
+        // Expose functions for inline handlers
+        window.openGame = openGame;
+        window.quickQuery = quickQuery;
+        window.endGame = endGame;
+        window.acceptAllConsent = function(){ saveConsent({analytics:true,ads:true,backend:true}); applyConsentWorkflows(); const b=$id('consentBanner'); if(b) b.style.display='none'; showToast('Consentimento aceito'); };
+        window.rejectAllConsent = function(){ saveConsent({analytics:false,ads:false,backend:false}); const b=$id('consentBanner'); if(b) b.style.display='none'; showToast('Consentimento rejeitado'); };
+
+        // Init
+        window.addEventListener('load', ()=>{ loadCoins(); updateAuthUi(); applyConsentWorkflows(); wireUiControls(); checkBackendStatus(); loadFeaturedMatches(); const h = location.hash.replace('#',''); if(h && $id(h)) navigateTo(h); else navigateTo('home'); if(signInButton) signInButton.addEventListener('click', signIn); if(signOutButton) signOutButton.addEventListener('click', signOut); setInterval(updateMetrics,1000); if(userCoinsDisplay) userCoinsDisplay.textContent = userCoins; });
+
+    })();
+    // If Firebase SDK is present, use Google popup auth
+    if (window.firebase && firebase.auth) {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider).then(result => {
+            return result.user.getIdToken().then(idToken => ({ user: result.user, idToken }));
+        }).then(({ user, idToken }) => {
+            // Send idToken to backend to create/find user
+            fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) })
+                .then(r => r.json())
+                .then(data => {
+                    currentUser = { userId: data.userId, name: data.name, email: data.email, photoURL: data.photoURL };
+                    // load coins from backend
+                    fetch(`/api/coins?userId=${encodeURIComponent(currentUser.userId)}`).then(r => r.json()).then(d => {
+                        userCoins = Number(d.coins) || 0;
+                        updateAuthState(true);
+                        showToast(`Bem-vindo, ${currentUser.name}!`, { ttl: 2000 });
+                        loadRestrictedContent();
+                    }).catch(() => {
+                        loadCoinsFromStorage();
+                        updateAuthState(true);
+                        loadRestrictedContent();
+                    });
+                }).catch(() => {
+                    showToast('Erro ao autenticar com o backend.', { ttl: 2200 });
+                });
+        }).catch(err => {
+            console.warn('Firebase sign-in failed', err);
+            showToast('Falha no login do Google.', { ttl: 2000 });
+        });
+        return;
+    }
+
+    // Fallback: previous local/backend flow
+    if (getConsent('backend')) {
+        // Ensure we send an email (backend expects email). Generate a local fake email to avoid 400 errors
+        const fakeEmail = `local+${Date.now()}@example.com`;
+        fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: 'Analista Pro', email: fakeEmail }) })
+            .then(r => r.json())
+            .then(user => {
+                // If API returned an error object, fallback to local mode
+                if (user && user.error) throw new Error(user.error);
+                currentUser = user;
+                // Pega saldo do backend
+                fetch(`/api/coins?userId=${encodeURIComponent(user.userId)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        userCoins = Number(data.coins) || 0;
+                        updateAuthState(true);
+                        showToast(`Bem-vindo, ${currentUser.name}! Dados carregados.`, { ttl: 2500 });
+                        loadRestrictedContent();
+                    }).catch(() => {
+                        // fallback local
+                        loadCoinsFromStorage();
+                        if (!userCoins || userCoins <= 0) userCoins = 500;
+                        updateAuthState(true);
+                        showToast(`Bem-vindo, ${currentUser.name}! (offline)` , { ttl: 2500 });
+                        loadRestrictedContent();
+                    });
+            }).catch(() => {
+                // fallback local
+                currentUser = { name: 'Analista Pro' };
+                loadCoinsFromStorage();
+                if (!userCoins || userCoins <= 0) userCoins = 500;
+                updateAuthState(true);
+                showToast('Bem-vindo! (modo offline)', { ttl: 2000 });
+                loadRestrictedContent();
+            });
+    } else {
+        // Sem consentimento para backend, faz login local simulado
+        currentUser = { name: 'Analista Pro' };
+        loadCoinsFromStorage();
+        if (!userCoins || userCoins <= 0) userCoins = 500;
+        updateAuthState(true);
+        showToast('Bem-vindo! (local)', { ttl: 2000 });
+        loadRestrictedContent();
+    }
+}
+
+function signOut() {
+    // If firebase is active, sign out there too
+    if (window.firebase && firebase.auth) {
+        firebase.auth().signOut().catch(()=>{});
+    }
+    currentUser = null;
+    // Persiste o saldo atual e limpa a sessão
+    saveCoinsToStorage();
+    userCoins = 0;
+    updateAuthState(false);
+    showToast('Você saiu. Sessão finalizada.', {ttl: 2000});
+}
+
+/** Atualiza a interface (botões, perfil e conteúdo restrito) */
+function updateAuthState(loggedIn) {
+    const sections = document.querySelectorAll('.auth-required');
+    const prompts = document.querySelectorAll('.sign-in-prompt');
+    
+    if (loggedIn && currentUser) {
+        signInButton.style.display = 'none';
+        signOutButton.style.display = 'block';
+        userProfile.style.display = 'flex';
+        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('userPhoto').src = currentUser.photoURL;
+        userCoinsDisplay.textContent = userCoins;
+
+        sections.forEach(section => section.classList.add('logged-in'));
+        prompts.forEach(prompt => prompt.classList.add('logged-in'));
+        
+    } else {
+        signInButton.style.display = 'block';
+        signOutButton.style.display = 'none';
+        userProfile.style.display = 'none';
+
+        sections.forEach(section => section.classList.remove('logged-in'));
+        prompts.forEach(prompt => prompt.classList.remove('logged-in'));
+    }
+}
+
+/** Carrega as tabelas de classificação que só podem ser vistas por usuários logados */
+function loadRestrictedContent() {
+    // 1. Classificação Série A
+    serieATableDiv.innerHTML = generateTableHTML(CLASSIFICATION_DATA.serieA);
+    // 2. Classificação Série B
+    serieBTableDiv.innerHTML = generateTableHTML(CLASSIFICATION_DATA.serieB);
+}
+
+
+// ===============================================
+// Lógica do Dashboard e Interatividade
+// ===============================================
+
+/** Simula a resposta da IA para consultas rápidas */
+function quickQuery(queryType) {
+    if (!currentUser) {
+        iaResponseDiv.innerHTML = '<p style="color: #e74c3c; font-weight: bold;">🔒 Faça login para usar o IA Analytics!</p>';
+        return;
+    }
+    
+    interactionsCount++;
+    const COIN_GAIN = 5;
+    userCoins += COIN_GAIN;
+    userCoinsDisplay.textContent = userCoins;
+    animateCoinGain(COIN_GAIN); // Animação de ganho de moedas
+    // Persiste local e tenta sincronizar com backend se houver consentimento
+    saveCoinsToStorage();
+    if (currentUser && currentUser.userId && getConsent('backend')) {
+        fetch('/api/coins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.userId, coins: userCoins }) }).catch(()=>{});
+    }
+    showToast(`+${COIN_GAIN} moedas! (Consulta IA)` , {ttl: 2200});
+    
+    const responses = {
+        'serie-a-classification': 'Análise da IA: Fluminense mantém a liderança, mas o Flamengo tem 78% de chance de vencer o próximo clássico, diminuindo a diferença. Probabilidade de 5% de Z4.',
+        'serie-b-classification': 'Análise da IA: O Vasco tem 92% de chance de acesso, mas precisa garantir mais 4 vitórias nos próximos 6 jogos. Cruzeiro e Bahia em disputa acirrada.',
+        'copa-brasil-results': 'Análise da IA: São Paulo 2x1 Corinthians (IA acertou 85%), Palmeiras 3x0 Atlético-MG (IA errou o placar). Próxima fase em análise.',
+        'top-scorers': 'Análise da IA: Tiquinho Soares (Botafogo) lidera com 18 gols. Pedro (Flamengo) com 15. A IA prevê Endrick como o artilheiro do segundo turno.'
+    };
+
+    iaResponseDiv.innerHTML = `<p style="font-weight: bold; color: #f1c40f;">[Processando... Consultando Modelos Prediivos V4.1]</p>`;
+
+    setTimeout(() => {
+        iaResponseDiv.innerHTML = `<p style="color: #2ecc71; font-weight: bold;">Resposta da IA:</p><p>${responses[queryType] || 'Consulta não reconhecida pela IA.'}</p>`;
+        updateMetrics();
+    }, 1500);
+}
+
+/** Simula a abertura de um minijogo */
+async function openGame(gameName) {
+    if (!currentUser) {
+        showToast('Você precisa estar logado para iniciar um jogo e ganhar moedas!', {ttl: 3000});
+        return;
+    }
+    
+    gamesPlayedCount++;
+    const COIN_GAIN = 15;
+    userCoins += COIN_GAIN;
+    
+    updateMetrics(); 
+    userCoinsDisplay.textContent = userCoins;
+    animateCoinGain(COIN_GAIN); // Animação de ganho de moedas
+    saveCoinsToStorage();
+    if (currentUser && currentUser.userId && getConsent('backend')) {
+        fetch('/api/coins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: currentUser.userId, coins: userCoins }) }).catch(()=>{});
+    }
+    showToast(`+${COIN_GAIN} moedas por iniciar ${gameName}!`, {ttl: 2500});
+    
+    // Dynamically load and render the game
+    const gameContentArea = document.getElementById('gameContentArea');
+    if (!gameContentArea) return;
+    
+    try {
+        if (gameName === 'precisao') {
+            const { renderPrecisaoGame } = await import('./games/precisao.js');
+            renderPrecisaoGame('gameContentArea');
+        } else if (gameName === 'goleiro') {
+            const { renderGoleiroGame } = await import('./games/goleiro.js');
+            renderGoleiroGame('gameContentArea');
+        } else if (gameName === 'ranking') {
+            const { renderGlobalRanking } = await import('./games/ranking.js');
+            renderGlobalRanking('gameContentArea');
+        } else {
+            gameContentArea.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #f1c40f;">
+                    <h3>🎮 ${gameName.toUpperCase()}</h3>
+                    <p>Este jogo está em desenvolvimento e será lançado em breve!</p>
+                    <p style="margin-top: 20px;">Continue jogando outros minijogos para acumular moedas! 💰</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading game:', error);
+        gameContentArea.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #e74c3c;">
+                <p>Erro ao carregar o jogo. Tente novamente mais tarde.</p>
+            </div>
+        `;
+    }
+}
+
+// Função para simular o fim do jogo e persistir moedas
+window.endGame = function() {
+    if (typeof gameContentArea !== 'undefined' && gameContentArea) {
+        gameContentArea.innerHTML = `
+            <p style="color: #f1c40f; font-weight: bold;">Fim de Jogo! Volte sempre para ganhar mais moedas!</p>
+        `;
+        setTimeout(() => {
+            gameContentArea.innerHTML = '<p class="sign-in-prompt logged-in">Escolha um novo jogo abaixo:</p>';
+        }, 2000);
+    }
+    saveCoinsToStorage();
+    showToast('Jogo finalizado. Moedas salvas.', {ttl: 1800});
+}
+
+/** Atualiza o dashboard de métricas em tempo real */
+function updateMetrics() {
+    const currentTime = Date.now();
+    const sessionSeconds = Math.floor((currentTime - startTime) / 1000);
+    
+    // Fórmulas de Engajamento mais dinâmicas (simulação)
+    let rawScore = (interactionsCount * 1.5) + (gamesPlayedCount * 3) + (sessionSeconds / 120);
+    engagementScore = Math.min(rawScore, 10.0);
+
+    document.getElementById('sessionTime').textContent = `${sessionSeconds}s`;
+    document.getElementById('interactions').textContent = interactionsCount;
+    document.getElementById('gamesPlayed').textContent = gamesPlayedCount;
+    document.getElementById('engagementScore').textContent = engagementScore.toFixed(2);
+}
+
+/** Simula o carregamento dos jogos em destaque */
+function loadFeaturedMatches() {
+    // Tenta buscar do backend quando permitido
+    if (getConsent('backend')) {
+        fetch('/api/featured-matches').then(r => r.json()).then(data => {
+            const matches = data.matches || [];
+            let html = `<h3>Próximos Jogos (Palpites da IA)</h3><table style="width: 100%; border-collapse: collapse; text-align: left;">`;
+            html += `<thead><tr style="background-color: #34495e;"><th style="padding: 10px;">Data</th><th style="padding: 10px;">Partida</th><th style="padding: 10px;">Probabilidade de Vitória (IA)</th></tr></thead><tbody>`;
+            matches.forEach(m => {
+                const probs = m.probabilities;
+                const probText = Object.keys(probs).map(k => `${k} ${probs[k]}%`).join(' | ');
+                html += `<tr><td style="padding: 10px; border-bottom: 1px solid #4a4a4a;">${m.date}</td><td style="padding: 10px; border-bottom: 1px solid #4a4a4a;">${m.match}</td><td style="padding: 10px; border-bottom: 1px solid #4a4a4a; color: #2ecc71;">${probText}</td></tr>`;
+            });
+            html += `</tbody></table>`;
+            featuredMatchesDiv.innerHTML = html;
+        }).catch(()=>{
+            // fallback local
+            featuredMatchesDiv.innerHTML = `<p>Sem conexão. Mostrando dados locais.</p>`;
+            // reuse the original local content
+            featuredMatchesDiv.innerHTML += `
+                <h3>Próximos Jogos (Local)</h3>
+                <p>Flamengo vs Fluminense - Hoje 20h00</p>
+            `;
+        });
+    } else {
+        // fallback quando sem consentimento
+        featuredMatchesDiv.innerHTML = `
+            <h3>Próximos Jogos (Local)</h3>
+            <p>Flamengo vs Fluminense - Hoje 20h00</p>
+        `;
+    }
+}
+
+/** Simula a conexão com o Backend */
+function checkBackendStatus() {
+    setTimeout(() => {
+        status = 'online';
+        backendStatusText.textContent = 'Servidor Online (v2.1.0)';
+        backendStatusIndicator.classList.remove('status-loading');
+        backendStatusIndicator.classList.add('status-online');
+        document.getElementById('statusDetails').innerHTML = 'Dados atualizados em tempo real.';
+    }, 1000);
+}
+
+
+// ===============================================
+// Lógica de Navegação (SPA) - Mantida
+// ===============================================
+
+function navigateTo(pageId) {
+    pages.forEach(page => page.classList.remove('active'));
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+    }
+
+    navButtons.forEach(btn => {
+        if (btn.getAttribute('data-page') === pageId) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    history.pushState(null, null, `#${pageId}`);
+    
+    // Lazy-load international league data when navigating to internacional page
+    if (pageId === 'internacional' && getConsent('backend')) {
+        loadPremierLeague();
+        loadLaLiga();
+        loadSerieAIta();
+        loadLibertadores();
+        loadSudamericana();
+        loadUCL();
+        loadUEL();
+        loadUEConf();
+    }
+}
+
+navButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pageId = button.getAttribute('data-page');
+        navigateTo(pageId);
+    });
 });
 
-window.onload = ()=>{ const h=window.location.hash.substring(1); if(h && document.getElementById(h)) navigateTo(h); else navigateTo('home'); checkBackendStatus(); loadFeaturedMatches(); setInterval(updateMetrics,1000); loadCoinsFromStorage(); updateAuthState(false); if(userCoinsDisplay) userCoinsDisplay.textContent=userCoins; };
+function handleInitialLoad() {
+    const defaultPage = 'home';
+    const hash = window.location.hash.substring(1);
+    
+    if (hash && document.getElementById(hash)) {
+        navigateTo(hash);
+    } else {
+        navigateTo(defaultPage);
+    }
+}
 
-// --- Firebase client initializer (paste config JSON into modal and initialize) ---
-window.initFirebaseFromConfig = function(cfg){
-  try{
-    // Save config locally
-    localStorage.setItem('fap_firebase_cfg', JSON.stringify(cfg));
-  }catch(e){ console.warn('Could not persist firebase cfg', e); }
-  // Dynamically load Firebase scripts if not present
-  if(!window.firebase){
-    const s1 = document.createElement('script'); s1.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js'; s1.onload = ()=>{ const s2=document.createElement('script'); s2.src='https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js'; s2.onload = ()=>{ try{ firebase.initializeApp(cfg); window._firebaseApp = firebase; window._firebaseAuth = firebase.auth(); console.log('Firebase initialized (compat)'); attachFirebaseAuthHandlers(); }catch(e){ console.warn('firebase init failed', e); } }; document.head.appendChild(s2); }; document.head.appendChild(s1);
-  } else {
-    try{ firebase.initializeApp(cfg); window._firebaseApp = firebase; window._firebaseAuth = firebase.auth(); attachFirebaseAuthHandlers(); }catch(e){ console.warn('firebase init failed', e); }
-  }
+
+// ===============================================
+// Event Listeners e Inicialização
+// ===============================================
+
+// Listeners de Login/Logout
+signInButton.addEventListener('click', signIn);
+signOutButton.addEventListener('click', signOut);
+
+window.onload = () => {
+    handleInitialLoad();
+    checkBackendStatus();
+    loadFeaturedMatches();
+    
+    setInterval(updateMetrics, 1000); 
+    // Atualiza o estado inicial (caso o usuário já estivesse logado em um ambiente real)
+    updateAuthState(false); 
+    // Ao carregar a página, restaura moedas caso usuário já as tenha
+    loadCoinsFromStorage();
+    userCoinsDisplay.textContent = userCoins;
 };
 
-function attachFirebaseAuthHandlers(){
-  // Wire sign-in button to Google popup
-  const signInBtn = document.getElementById('signInButton');
-  if(signInBtn){ signInBtn.removeEventListener('click', firebaseSignIn); signInBtn.addEventListener('click', firebaseSignIn); }
-  const signOutBtn = document.getElementById('signOutButton');
-  if(signOutBtn){ signOutBtn.removeEventListener('click', firebaseSignOut); signOutBtn.addEventListener('click', firebaseSignOut); }
-  // Monitor auth state
-  try{ window._firebaseAuth.onAuthStateChanged(user=>{ if(user){ currentUser = { name: user.displayName, email: user.email, uid: user.uid }; // present minimal profile
-      // Optionally fetch token and display
-      user.getIdToken().then(tok=>{ console.log('Firebase ID token (short):', tok?.slice(0,40)+'...'); });
-      loadCoinsFromStorage(); if(!userCoins) userCoins = 500; updateAuthState(true); showToast('Signed in: '+(user.displayName||user.email));
-    } else { currentUser = null; updateAuthState(false); showToast('Signed out'); } }); }catch(e){ console.warn('auth state handler failed', e); }
-}
-
-async function firebaseSignIn(ev){ ev && ev.preventDefault && ev.preventDefault(); if(!window._firebaseAuth){ showToast('Firebase not configured. Use the Configure Firebase modal.'); return; } try{ const provider = new firebase.auth.GoogleAuthProvider(); const result = await window._firebaseAuth.signInWithPopup(provider); const user = result.user; if(user){ currentUser = { name: user.displayName, email: user.email, uid: user.uid }; loadCoinsFromStorage(); if(!userCoins) userCoins = 500; updateAuthState(true); showToast('Signed in: ' + (user.displayName||user.email)); } }catch(e){ console.warn('firebase signIn failed', e); showToast('Login failed'); } }
-
-async function firebaseSignOut(ev){ ev && ev.preventDefault && ev.preventDefault(); if(!window._firebaseAuth) return; try{ await window._firebaseAuth.signOut(); currentUser=null; updateAuthState(false); showToast('Signed out'); }catch(e){ console.warn('firebase signOut failed', e); showToast('Sign out failed'); } }
-
-// Wire firebase modal save button (already present in HTML)
-document.addEventListener('DOMContentLoaded', ()=>{
-  const saveBtn = document.getElementById('saveFirebaseBtn');
-  if(saveBtn){ saveBtn.addEventListener('click', ()=>{
-    const raw = document.getElementById('firebaseConfigInput')?.value || '';
-    try{
-      const cfg = JSON.parse(raw);
-      initFirebaseFromConfig(cfg);
-      const m = document.getElementById('firebaseModal'); if(m) m.style.display='none';
-      showToast('Firebase configurado localmente');
-    }catch(e){ showToast('JSON inválido. Cole o objeto firebaseConfig.'); }
-  });
-  }
-  const cancel = document.getElementById('cancelFirebaseBtn'); if(cancel) cancel.addEventListener('click', ()=>{ const m=document.getElementById('firebaseModal'); if(m) m.style.display='none'; });
-});
-
-// After navigation, attempt to load sports data lazily
-document.addEventListener('click', (e)=>{
-  const a = e.target.closest && e.target.closest('.nav-btn');
-  if(!a) return;
-  const page = a.getAttribute('data-page');
-  if(page === 'brasileirao'){
-    // Serie A standings
-    if(!_loaded.serieA){ loadSerieAReal().then(()=>{ _loaded.serieA = true; }).catch(()=>{}); }
-    // Artilheiros
-    if(!_loaded.artilheiros){ loadArtilheiros().then(()=>{ _loaded.artilheiros = true; }).catch(()=>{}); }
-    // Serie B
-    if(!_loaded.serieB){ loadSerieB().then(()=>{ _loaded.serieB = true; }).catch(()=>{}); }
-    if(!_loaded.artilheirosB){ loadArtilheirosSerieB().then(()=>{ _loaded.artilheirosB = true; }).catch(()=>{}); }
-    // Assist, cards, goalkeepers, upcoming
-  if(!_loaded.assistA){ loadAssistenciasSerieA().then(()=>{ _loaded.assistA = true; }).catch(()=>{}); }
-  if(!_loaded.cardsA){ loadCartoesSerieA().then(()=>{ _loaded.cardsA = true; }).catch(()=>{}); }
-  if(!_loaded.gkA){ loadGoleirosSerieA().then(()=>{ _loaded.gkA = true; }).catch(()=>{}); }
-    if(!_loaded.next){ loadProximosMatches().then(()=>{ _loaded.next = true; }).catch(()=>{}); }
-    if(!_loaded.assistB){ loadAssistenciasSerieB().then(()=>{ _loaded.assistB = true; }).catch(()=>{}); }
-    if(!_loaded.cardsB){ loadCartoesSerieB().then(()=>{ _loaded.cardsB = true; }).catch(()=>{}); }
-    if(!_loaded.gkB){ loadGoleirosSerieB().then(()=>{ _loaded.gkB = true; }).catch(()=>{}); }
-    // Copa do Brasil (optional: set window.COPA_LEAGUE_ID to the API-Football league id)
-    try{
-      const copaId = window.COPA_LEAGUE_ID || null;
-      if(copaId && !_loaded.copa){ loadCopaTabela(copaId).then(()=>{ _loaded.copa = true; }).catch(()=>{}); }
-      if(copaId && !_loaded.artilheirosCopa){ loadArtilheirosCopa(copaId).then(()=>{ _loaded.artilheirosCopa = true; }).catch(()=>{}); }
-      if(copaId && !_loaded.assistCopa){ loadAssistenciasCopa(copaId).then(()=>{ _loaded.assistCopa = true; }).catch(()=>{}); }
-      if(copaId && !_loaded.cardsCopa){ loadCartoesCopa(copaId).then(()=>{ _loaded.cardsCopa = true; }).catch(()=>{}); }
-      if(copaId && !_loaded.gkCopa){ loadGoleirosCopa(copaId).then(()=>{ _loaded.gkCopa = true; }).catch(()=>{}); }
-    }catch(e){}
-  }
-});
-
-// --- ApexCharts Radar charts for Team and Player comparisons ---
-// Load options: the project does not currently include ApexCharts - load CDN dynamically when needed
-function ensureApexLoaded(){
-  if(window.ApexCharts) return Promise.resolve();
-  return new Promise((resolve, reject)=>{
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/apexcharts';
-    s.onload = ()=>resolve();
-    s.onerror = (e)=>reject(e);
-    document.head.appendChild(s);
-  });
-}
-
-async function populateTimesRadar(){
-  try{
-    const res = await fetch('/api/sports/brasileirao-tabela');
-    const data = await res.json();
-    const times = data.response?.[0]?.league?.standings?.[0] || [];
-    const select = document.getElementById('selectTimesRadar');
-    if(!select) return;
-    select.innerHTML = '';
-    times.forEach(team => {
-      const opt = document.createElement('option');
-      opt.value = String(team.team?.id || team.team?.name || '');
-      opt.textContent = team.team?.name || '—';
-      select.appendChild(opt);
-    });
-    // setup awesomplete lists for inputs
-    try{
-      const names = times.map(t => t.team?.name).filter(Boolean);
-      ['inputRadarTime1','inputRadarTime2','inputRadarTime3'].forEach(id=>{
-        const input = document.getElementById(id);
-        if(input && window.Awesomplete){ new Awesomplete(input, { list: names, minChars: 1 }); }
-      });
-    }catch(e){/* ignore awesomplete setup errors */}
-  }catch(e){ console.warn('populateTimesRadar failed', e); }
-}
-
-async function populateJogadoresRadar(){
-  try{
-    const res = await fetch('/api/sports/brasileirao-artilheiros');
-    const data = await res.json();
-    const jogadores = data.response || [];
-    const select = document.getElementById('selectJogadoresRadar');
-    if(!select) return;
-    select.innerHTML = '';
-    jogadores.forEach(j => {
-      const opt = document.createElement('option');
-      opt.value = String(j.player?.id || j.player?.name || '');
-      opt.textContent = j.player?.name || '—';
-      select.appendChild(opt);
-    });
-    // setup awesomplete lists for player inputs
-    try{
-      const names = jogadores.map(j => j.player?.name).filter(Boolean);
-      ['inputRadarJogador1','inputRadarJogador2','inputRadarJogador3'].forEach(id=>{
-        const input = document.getElementById(id);
-        if(input && window.Awesomplete){ new Awesomplete(input, { list: names, minChars: 1 }); }
-      });
-    }catch(e){/* ignore awesomplete setup errors */}
-  }catch(e){ console.warn('populateJogadoresRadar failed', e); }
-}
-
-async function renderRadarTimesSelected(){
-  try{
-    await ensureApexLoaded();
-    const select = document.getElementById('selectTimesRadar');
-    if(!select) return;
-    const selectedIds = Array.from(select.selectedOptions).map(o => String(o.value));
-    const res = await fetch('/api/sports/brasileirao-tabela');
-    const data = await res.json();
-    const times = data.response?.[0]?.league?.standings?.[0] || [];
-    const timesComparar = (selectedIds.length>0 ? times.filter(t => selectedIds.includes(String(t.team?.id))) : times.slice(0,3)).slice(0,3);
-    const categorias = ['Goals Scored','Goals Conceded','Wins','Draws','Losses'];
-    const series = timesComparar.map(time => ({ name: time.team?.name || '—', data: [ time.all?.goals?.for ?? 0, time.all?.goals?.against ?? 0, time.all?.win ?? 0, time.all?.draw ?? 0, time.all?.lose ?? 0 ] }));
-    const options = { chart:{ type:'radar', height:350 }, title:{ text:'Team Comparison - Série A', style:{ color:'#3498db' } }, xaxis:{ categories:categorias }, colors:['#2ecc71','#e74c3c','#f1c40f'], stroke:{ width:2 }, fill:{ opacity:0.25 }, markers:{ size:4 } };
-    if(window._apexRadarTimes){ try{ window._apexRadarTimes.destroy(); }catch(e){} }
-    window._apexRadarTimes = new ApexCharts(document.querySelector('#chartRadarTimes'), { ...options, series });
-    window._apexRadarTimes.render();
-  }catch(e){ console.warn('renderRadarTimesSelected failed', e); }
-}
-
-async function renderRadarJogadoresSelected(){
-  try{
-    await ensureApexLoaded();
-    const select = document.getElementById('selectJogadoresRadar');
-    if(!select) return;
-    const selectedIds = Array.from(select.selectedOptions).map(o => String(o.value));
-    const res = await fetch('/api/sports/brasileirao-artilheiros');
-    const data = await res.json();
-    const jogadores = data.response || [];
-    const jogadoresComparar = (selectedIds.length>0 ? jogadores.filter(j => selectedIds.includes(String(j.player?.id))) : jogadores.slice(0,3)).slice(0,3);
-    const categorias = ['Goals','Assists','Yellow Cards','Clean Sheets'];
-    const series = jogadoresComparar.map(j => { const stats = j.statistics?.[0] || {}; return { name: j.player?.name || '—', data: [ stats?.goals?.total ?? 0, stats?.goals?.assists ?? 0, stats?.cards?.yellow ?? 0, stats?.games?.cleansheets ?? 0 ] }; });
-    const options = { chart:{ type:'radar', height:350 }, title:{ text:'Player Comparison - Série A', style:{ color:'#3498db' } }, xaxis:{ categories:categorias }, colors:['#2ecc71','#e74c3c','#f1c40f'], stroke:{ width:2 }, fill:{ opacity:0.25 }, markers:{ size:4 } };
-    if(window._apexRadarJogadores){ try{ window._apexRadarJogadores.destroy(); }catch(e){} }
-    window._apexRadarJogadores = new ApexCharts(document.querySelector('#chartRadarJogadores'), { ...options, series });
-    window._apexRadarJogadores.render();
-  }catch(e){ console.warn('renderRadarJogadoresSelected failed', e); }
-}
-
-// Wire buttons
-document.addEventListener('DOMContentLoaded', ()=>{
-  const btnT = document.getElementById('btnRadarTimes'); if(btnT) btnT.addEventListener('click', (ev)=>{ ev.preventDefault(); renderRadarTimesSelected(); });
-  const btnP = document.getElementById('btnRadarJogadores'); if(btnP) btnP.addEventListener('click', (ev)=>{ ev.preventDefault(); renderRadarJogadoresSelected(); });
-});
-
-// Autocomplete-based radar rendering (reads inputs first, falls back to selects)
-async function renderRadarTimesAutocomplete(){
-  try{
-    const inputs = ['inputRadarTime1','inputRadarTime2','inputRadarTime3'].map(id=>document.getElementById(id)).filter(Boolean);
-    const names = inputs.map(i=>i.value?.trim()).filter(Boolean);
-    if(names.length>0){
-      // fetch standings and match by name
-      const res = await fetch('/api/sports/brasileirao-tabela');
-      const data = await res.json();
-      const times = data.response?.[0]?.league?.standings?.[0] || [];
-      const selected = times.filter(t => names.includes(t.team?.name)).slice(0,3);
-      if(selected.length>0){
-        const categorias = ['Goals Scored','Goals Conceded','Wins','Draws','Losses'];
-        const series = selected.map(time => ({ name: time.team?.name || '—', data:[ time.all?.goals?.for ?? 0, time.all?.goals?.against ?? 0, time.all?.win ?? 0, time.all?.draw ?? 0, time.all?.lose ?? 0 ] }));
-        await ensureApexLoaded();
-        const options = { chart:{ type:'radar', height:350 }, title:{ text:'Team Comparison - Série A', style:{ color:'#3498db' } }, xaxis:{ categories }, colors:['#2ecc71','#e74c3c','#f1c40f'], stroke:{ width:2 }, fill:{ opacity:0.25 }, markers:{ size:4 } };
-        if(window._apexRadarTimes){ try{ window._apexRadarTimes.destroy(); }catch(e){} }
-        window._apexRadarTimes = new ApexCharts(document.querySelector('#chartRadarTimes'), { ...options, series });
-        window._apexRadarTimes.render();
-        return;
-      }
-    }
-    // fallback to select-based rendering
-    renderRadarTimesSelected();
-  }catch(e){ console.warn('renderRadarTimesAutocomplete', e); }
-}
-
-async function renderRadarJogadoresAutocomplete(){
-  try{
-    const inputs = ['inputRadarJogador1','inputRadarJogador2','inputRadarJogador3'].map(id=>document.getElementById(id)).filter(Boolean);
-    const names = inputs.map(i=>i.value?.trim()).filter(Boolean);
-    if(names.length>0){
-      const res = await fetch('/api/sports/brasileirao-artilheiros');
-      const data = await res.json();
-      const jogadores = data.response || [];
-      const selected = jogadores.filter(j => names.includes(j.player?.name)).slice(0,3);
-      if(selected.length>0){
-        const categorias = ['Goals','Assists','Yellow Cards','Clean Sheets'];
-        const series = selected.map(j => { const stats = j.statistics?.[0] || {}; return { name: j.player?.name || '—', data: [ stats?.goals?.total ?? 0, stats?.goals?.assists ?? 0, stats?.cards?.yellow ?? 0, stats?.games?.cleansheets ?? 0 ] }; });
-        await ensureApexLoaded();
-        const options = { chart:{ type:'radar', height:350 }, title:{ text:'Player Comparison - Série A', style:{ color:'#3498db' } }, xaxis:{ categories }, colors:['#2ecc71','#e74c3c','#f1c40f'], stroke:{ width:2 }, fill:{ opacity:0.25 }, markers:{ size:4 } };
-        if(window._apexRadarJogadores){ try{ window._apexRadarJogadores.destroy(); }catch(e){} }
-        window._apexRadarJogadores = new ApexCharts(document.querySelector('#chartRadarJogadores'), { ...options, series });
-        window._apexRadarJogadores.render();
-        return;
-      }
-    }
-    // fallback to select-based rendering
-    renderRadarJogadoresSelected();
-  }catch(e){ console.warn('renderRadarJogadoresAutocomplete', e); }
-}
-
-// Wire autocomplete buttons
-document.addEventListener('DOMContentLoaded', ()=>{
-  const bAutoT = document.getElementById('btnRadarTimes'); if(bAutoT) bAutoT.addEventListener('click', (ev)=>{ ev.preventDefault(); renderRadarTimesAutocomplete(); });
-  const bAutoP = document.getElementById('btnRadarJogadores'); if(bAutoP) bAutoP.addEventListener('click', (ev)=>{ ev.preventDefault(); renderRadarJogadoresAutocomplete(); });
-});
-
-// Trigger radars when navigating to Brasileirão page
-const _navigateOrig = navigateTo;
-window.navigateTo = function(pageId){ try{ _navigateOrig(pageId); }catch(e){ console.warn('navigateTo wrapper', e); }
-  if(pageId === 'brasileirao'){
-    // populate selects if empty
-    try{ populateTimesRadar(); populateJogadoresRadar(); }catch(e){}
-    // render default radars
-    renderRadarTimesSelected(); renderRadarJogadoresSelected();
-  }
-};
-
-// Also attempt to load when page is opened directly via hash
-if(window.location.hash && window.location.hash.includes('brasileirao')){
-  if(!_loaded.serieA) { loadSerieAReal().then(()=>{ _loaded.serieA = true; }).catch(()=>{}); }
-  if(!_loaded.artilheiros) { loadArtilheiros().then(()=>{ _loaded.artilheiros = true; }).catch(()=>{}); }
-}
-
-// Expose for HTML
-window.quickQuery = quickQuery; window.openGame = openGame; window.debugShowCurrentUser = ()=> console.log('DEBUG user', currentUser, 'coins', userCoins);
+// Expondo as funções para uso no HTML (onclick)
+window.quickQuery = quickQuery;
+window.openGame = openGame;

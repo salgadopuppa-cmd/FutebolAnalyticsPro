@@ -2,394 +2,106 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-        <title>Futebol Analytics Pro: Análises de IA, Estatísticas e Palpites de Futebol 2025</title>
-        <meta name="description" content="Plataforma de análises esportivas com IA para futebol brasileiro. Estatísticas do Brasileirão 2025, Copa do Brasil, palpites inteligentes e jogos educativos. Análises táticas avançadas com inteligência artificial.">
-        <meta name="keywords" content="futebol brasileiro, análises esportivas, inteligência artificial, brasileirão 2025, copa do brasil, palpites futebol, estatísticas futebol, análises táticas, IA esportes, prognósticos futebol">
-        <meta name="author" content="Futebol Analytics Pro">
-        <meta name="robots" content="index, follow">
-        <meta name="language" content="pt-BR">
+    <title>Futebol Analytics Pro: Análises de IA, Estatísticas e Palpites de Futebol 2025</title>
+    <meta name="description" content="Plataforma de análises esportivas com IA para futebol brasileiro. Estatísticas do Brasileirão 2025, Copa do Brasil, palpites inteligentes e jogos educativos. Análises táticas avançadas com inteligência artificial.">
+    <meta name="keywords" content="futebol brasileiro, análises esportivas, inteligência artificial, brasileirão 2025, copa do brasil, palpites futebol, estatísticas futebol, análises táticas, IA esportes, prognósticos futebol">
+    <meta name="author" content="Futebol Analytics Pro">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="pt-BR">
     
-        <meta property="og:title" content="Futebol Analytics Pro: Análises de IA e Palpites de Futebol 2025">
-        <meta property="og:description" content="A mais avançada plataforma de análises esportivas do Brasil. IA, estatísticas e palpites para Brasileirão e Copa do Brasil 2025.">
-        <meta property="og:image" content="https://futebolanalytics.pro/og-image.jpg">
-        <meta property="og:url" content="https://futebolanalytics.pro">
-        <meta property="og:type" content="website">
-        <meta property="og:site_name" content="Futebol Analytics Pro">
-        <meta property="og:locale" content="pt_BR">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
+    <meta property="og:title" content="Futebol Analytics Pro: Análises de IA e Palpites de Futebol 2025">
+    <meta property="og:description" content="A mais avançada plataforma de análises esportivas do Brasil. IA, estatísticas e palpites para Brasileirão e Copa do Brasil 2025.">
+    <meta property="og:image" content="https://futebolanalytics.pro/og-image.jpg">
+    <meta property="og:url" content="https://futebolanalytics.pro">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Futebol Analytics Pro">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Futebol Analytics Pro: Análises de IA e Palpites 2025">
-        <meta name="twitter:description" content="Plataforma avançada de análises esportivas com IA para futebol brasileiro. Estatísticas, palpites e jogos educativos.">
-        <meta name="twitter:image" content="https://futebolanalytics.pro/twitter-image.jpg">
-        <meta name="twitter:site" content="@FutebolAnalytics">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Futebol Analytics Pro: Análises de IA e Palpites 2025">
+    <meta name="twitter:description" content="Plataforma avançada de análises esportivas com IA para futebol brasileiro. Estatísticas, palpites e jogos educativos.">
+    <meta name="twitter:image" content="https://futebolanalytics.pro/twitter-image.jpg">
+    <meta name="twitter:site" content="@FutebolAnalytics">
     
-        <link rel="icon" type="image/x-icon" href="/favicon.ico">
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" type="image/png">
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-        <link rel="manifest" href="/site.webmanifest">
-
-        <!-- Google Analytics 4 (Consent-gated) -->
-        <script type="text/plain" data-consent="analytics" data-src="https://www.googletagmanager.com/gtag/js?id=G-371511577"></script>
-        <script type="text/plain" id="gtag-init" data-consent="analytics">
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);} 
-            gtag('js', new Date());
-            gtag('config', 'G-371511577');
-        </script>
-
-        <!-- Google AdSense (Consent-gated) -->
-        <script type="text/plain" data-consent="ads" data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9817979142101005" crossorigin="anonymous"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" type="image/png">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/site.webmanifest">
     
-        <link rel="stylesheet" href="style.css">
+    <!-- Google Analytics: consent-gated, loaded via app.js after user consent -->
+    <script type="text/plain" data-consent="analytics" data-src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script type="text/plain" data-consent="analytics">
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
     
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://www.googletagmanager.com">
-        <link rel="preconnect" href="https://pagead2.googlesyndication.com">
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        <link rel="dns-prefetch" href="https://www.google-analytics.com">
-    <!-- Awesomplete (autocomplete) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
-    </head>
-    <body>
-        <!-- Consent banner (CMP) -->
-        <div id="consentBanner" class="consent-banner" style="display:none;" role="dialog" aria-live="polite">
-            <div class="consent-inner">
-                <p><strong>Usamos cookies e serviços de terceiros</strong> para personalizar conteúdo, anúncios e analisar tráfego. Você aceita?</p>
-                <div class="consent-actions">
-                    <button onclick="acceptAllConsent()" class="auth-button">Aceitar tudo</button>
-                    <button onclick="rejectAllConsent()" class="auth-button" style="background:#e74c3c">Recusar</button>
-                </div>
+    <!-- AdSense: consent-gated, loaded via app.js after user consent -->
+    <script type="text/plain" data-consent="ads" data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=PUB_ID" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+</head>
+<body>
+    <!-- Consent banner (CMP) -->
+    <div id="consentBanner" class="consent-banner" style="display:none;" role="dialog" aria-live="polite">
+        <div class="consent-inner">
+            <p><strong>Usamos cookies e serviços de terceiros</strong> para personalizar conteúdo, anúncios e analisar tráfego. Você aceita?</p>
+            <div class="consent-actions">
+                <button onclick="acceptAllConsent()" class="auth-button">Aceitar tudo</button>
+                <button onclick="rejectAllConsent()" class="auth-button" style="background:#e74c3c">Recusar</button>
             </div>
         </div>
+    </div>
 
-        <header class="header" role="banner">
-            <div class="auth-section" role="complementary" aria-label="Seção de autenticação">
-                <div id="userProfile" class="user-profile" style="display: none;" role="region" aria-label="Perfil do usuário">
-                    <img id="userPhoto" class="user-photo" src="" alt="Foto do usuário" width="40" height="40">
-                    <div class="user-info">
-                        <div id="userName" class="user-name" aria-label="Nome do usuário"></div>
-                        <div class="user-coins" aria-label="Moedas do usuário">
-                            💰 <span id="userCoins" aria-live="polite">0</span> moedas
-                        </div>
+    <!-- Prebid / Ad Manager placeholders (ativar após configurar contas) -->
+    <!--
+    <script src="https://acdn.adnxs.com/prebid/not-for-prod/prebid.js"></script>
+    <script>
+        // Prebid configuration placeholder
+    </script>
+    -->
+    <header class="header" role="banner">
+        <div class="auth-section" role="complementary" aria-label="Seção de autenticação">
+            <div id="userProfile" class="user-profile" style="display: none;" role="region" aria-label="Perfil do usuário">
+                <img id="userPhoto" class="user-photo" src="" alt="Foto do usuário" width="40" height="40">
+                <div class="user-info">
+                    <div id="userName" class="user-name" aria-label="Nome do usuário"></div>
+                    <div class="user-coins" aria-label="Moedas do usuário">
+                        💰 <span id="userCoins" aria-live="polite">0</span> moedas
                     </div>
                 </div>
-                <button id="signInButton" class="auth-button" aria-label="Fazer login com Google">
-                    Entrar com Google
-                </button>
-                <button id="signOutButton" class="auth-button" style="display: none;" aria-label="Fazer logout">
-                    Sair
-                </button>
             </div>
-            <h1 class="logo">
-                <img src="logo.png.png" alt="Futebol Analytics Pro Logo" class="site-logo">
-            </h1>
-            <p class="subtitle" style="color: white;">Análises de IA, Estatísticas e Palpites Avançados dos Campeonatos Brasileiros 2025</p>
-            <div id="backendStatus" class="backend-status" role="status" aria-live="polite">
-                <span class="status-indicator status-loading" aria-hidden="true"></span>
-                <span id="statusText">Conectando ao servidor...</span>
-                <div id="statusDetails" style="font-size: 0.8rem; margin-top: 5px;"></div>
-            </div>
-        </header>
+            <button id="signInButton" class="auth-button" aria-label="Fazer login com Google">
+                Entrar com Google
+            </button>
+            <button id="signOutButton" class="auth-button" style="display: none;" aria-label="Fazer logout">
+                Sair
+            </button>
+        </div>
 
-        <nav class="navigation" role="navigation" aria-label="Navegação principal">
-            <ul class="nav-buttons" role="menubar">
-                <li role="none"><a href="#home" class="nav-btn active" data-page="home" role="menuitem" aria-label="Ir para página inicial">🏠 Início</a></li>
-                <li role="none"><a href="#brasileirao" class="nav-btn" data-page="brasileirao" role="menuitem" aria-label="Ver classificações do Brasileirão">🏆 Brasileirão A e B</a></li>
-                <li role="none"><a href="#copa" class="nav-btn" data-page="copa" role="menuitem" aria-label="Ver resultados da Copa do Brasil">🥇 Copa do Brasil</a></li>
-                <li role="none"><a href="#games" class="nav-btn" data-page="games" role="menuitem" aria-label="Acessar jogos educativos">🎮 Jogos Educativos</a></li>
-                <li role="none"><a href="#blog" class="nav-btn" data-page="blog" role="menuitem" aria-label="Ler artigos do blog">📝 Blog</a></li>
-                <li role="none"><a href="#about" class="nav-btn" data-page="about" role="menuitem" aria-label="Conhecer sobre nós">ℹ️ Sobre</a></li>
-                <li role="none"><a href="#contact" class="nav-btn" data-page="contact" role="menuitem" aria-label="Entrar em contato">📞 Contato</a></li>
-            </ul>
-        </nav>
+        <h1 class="logo">
+            <img src="logo.png" alt="Futebol Analytics Pro Logo" class="site-logo">
+        </h1>
+        <p class="subtitle" style="color: white;">Análises de IA, Estatísticas e Palpites Avançados dos Campeonatos Brasileiros 2025</p>
 
-        <main class="container" role="main">
-            <section id="home" class="page" data-page="home">
-                <div class="hero">
-                    <div class="hero-inner">
-                        <h2>Bem-vindo ao Futebol Analytics Pro</h2>
-                        <p>IA, estatísticas e palpites para o Brasileirão 2025 e competições nacionais.</p>
-                        <div class="hero-cta">
-                            <a href="#brasileirao" class="auth-button">Ver Classificações</a>
-                            <a href="#games" class="auth-button" style="background:#2ecc71">Jogar Agora</a>
-                        </div>
-                    </div>
-                    <img src="logo.png.png" alt="Logo" class="hero-logo">
-                </div>
-
-                <div class="dashboard-preview">
-                    <h3>Resumo Rápido</h3>
-                    <div class="cards">
-                        <div class="card">Partidas Hoje: <strong id="matchesToday">-</strong></div>
-                        <div class="card">Próximos Jogos: <strong id="upcomingMatches">-</strong></div>
-                        <div class="card">Palpites: <strong id="quickPicks">-</strong></div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="brasileirao" class="page" data-page="brasileirao">
-                <h2>Classificações do Brasileirão</h2>
-                <div id="leagueTables" class="tables">
-                    <!-- Tables populated by app.js -->
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Serie A</h3>
-                            <div id="serieATable" class="table-container"></div>
-                        </div>
-                        <div class="table-col">
-                            <h3>Artilheiros (Serie A)</h3>
-                            <div id="artilheirosTable" class="table-container"></div>
-                            <h4>Top Scorers Goal Chart</h4>
-                            <canvas id="chartArtilheiros" width="600" height="300"></canvas>
-                        </div>
-                    </div>
-                    <!-- Radar comparison controls -->
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Compare Teams</h3>
-                            <label for="inputRadarTime1">Escolha até 3 times (autocomplete):</label><br>
-                            <input id="inputRadarTime1" class="awesomplete" placeholder="Time 1" style="width:100%; max-width:360px; margin-bottom:6px;" />
-                            <input id="inputRadarTime2" class="awesomplete" placeholder="Time 2" style="width:100%; max-width:360px; margin-bottom:6px;" />
-                            <input id="inputRadarTime3" class="awesomplete" placeholder="Time 3" style="width:100%; max-width:360px; margin-bottom:8px;" />
-                            <div style="margin-bottom:8px;"><small>ou use a lista abaixo</small></div>
-                            <label for="selectTimesRadar">(fallback) Escolha até 3 times:</label><br>
-                            <select id="selectTimesRadar" multiple size="6" style="width:100%; max-width:360px; margin-bottom:8px;"></select>
-                            <div style="margin-bottom:12px;"><button id="btnRadarTimes" class="auth-button">Gerar Radar de Times</button></div>
-                            <h3>Team Comparison (Radar)</h3>
-                            <div id="chartRadarTimes" style="max-width:680px; margin-top:8px;"></div>
-                        </div>
-                        <div class="table-col">
-                            <h3>Compare Players</h3>
-                            <label for="inputRadarJogador1">Escolha até 3 jogadores (autocomplete):</label><br>
-                            <input id="inputRadarJogador1" class="awesomplete" placeholder="Jogador 1" style="width:100%; max-width:360px; margin-bottom:6px;" />
-                            <input id="inputRadarJogador2" class="awesomplete" placeholder="Jogador 2" style="width:100%; max-width:360px; margin-bottom:6px;" />
-                            <input id="inputRadarJogador3" class="awesomplete" placeholder="Jogador 3" style="width:100%; max-width:360px; margin-bottom:8px;" />
-                            <div style="margin-bottom:8px;"><small>ou use a lista abaixo</small></div>
-                            <label for="selectJogadoresRadar">(fallback) Escolha até 3 jogadores:</label><br>
-                            <select id="selectJogadoresRadar" multiple size="6" style="width:100%; max-width:360px; margin-bottom:8px;"></select>
-                            <div style="margin-bottom:12px;"><button id="btnRadarJogadores" class="auth-button">Gerar Radar de Jogadores</button></div>
-                            <h3>Player Comparison (Radar)</h3>
-                            <div id="chartRadarJogadores" style="max-width:680px; margin-top:8px;"></div>
-                        </div>
-                    </div>
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Serie B</h3>
-                            <div id="serieBTable" class="table-container"></div>
-                        </div>
-                        <div class="table-col">
-                            <h3>Artilheiros (Serie B)</h3>
-                            <div id="artilheirosSerieB" class="table-container"></div>
-                        </div>
-                    </div>
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Assistências (Serie A)</h3>
-                            <div id="assistenciasSerieA" class="table-container"></div>
-                            <!-- Backwards-compatible ID used in docs/examples -->
-                            <div id="assistenciasTableSerieA" class="table-container" aria-hidden="true"></div>
-                            <h4>Assists Chart</h4>
-                            <canvas id="chartAssistencias" width="600" height="300"></canvas>
-                        </div>
-                        <div class="table-col">
-                            <h3>Cartões (Serie A)</h3>
-                            <div id="cartoesSerieA" class="table-container"></div>
-                            <div id="cartoesTableSerieA" class="table-container" aria-hidden="true"></div>
-                        </div>
-                    </div>
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Goleiros (Clean Sheets) - Serie A</h3>
-                            <div id="goleirosSerieA" class="table-container"></div>
-                            <div id="goleirosTableSerieA" class="table-container" aria-hidden="true"></div>
-                            <h4>Goalkeepers (Clean Sheets) Chart</h4>
-                            <canvas id="chartGoleiros" width="600" height="300"></canvas>
-                        </div>
-                        <div class="table-col">
-                            <h3>Assistências (Serie B)</h3>
-                            <div id="assistenciasSerieB" class="table-container"></div>
-                            <div id="assistenciasTableSerieB" class="table-container" aria-hidden="true"></div>
-                        </div>
-                    </div>
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Cartões (Serie B)</h3>
-                            <div id="cartoesSerieB" class="table-container"></div>
-                            <div id="cartoesTableSerieB" class="table-container" aria-hidden="true"></div>
-                        </div>
-                        <div class="table-col">
-                            <h3>Goleiros (Serie B)</h3>
-                            <div id="goleirosSerieB" class="table-container"></div>
-                            <div id="goleirosTableSerieB" class="table-container" aria-hidden="true"></div>
-                        </div>
-                    </div>
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Copa do Brasil</h3>
-                            <div id="copaTable" class="table-container"></div>
-                            <div id="copaTableTable" class="table-container" aria-hidden="true"></div>
-                        </div>
-                        <div class="table-col">
-                            <h3>Artilheiros (Copa do Brasil)</h3>
-                            <div id="artilheirosCopa" class="table-container"></div>
-                            <div id="artilheirosTableCopa" class="table-container" aria-hidden="true"></div>
-                        </div>
-                    </div>
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Assistências (Copa do Brasil)</h3>
-                            <div id="assistenciasCopa" class="table-container"></div>
-                            <div id="assistenciasTableCopa" class="table-container" aria-hidden="true"></div>
-                        </div>
-                        <div class="table-col">
-                            <h3>Cartões (Copa do Brasil)</h3>
-                            <div id="cartoesCopa" class="table-container"></div>
-                            <div id="cartoesTableCopa" class="table-container" aria-hidden="true"></div>
-                        </div>
-                    </div>
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Goleiros (Copa do Brasil)</h3>
-                            <div id="goleirosCopa" class="table-container"></div>
-                            <div id="goleirosTableCopa" class="table-container" aria-hidden="true"></div>
-                        </div>
-                        <div class="table-col">
-                            <h3>Próximos Jogos</h3>
-                            <div id="proximosMatches" class="table-container"></div>
-                        </div>
-                    </div>
-                    <div class="table-row">
-                        <div class="table-col">
-                            <h3>Copa do Brasil</h3>
-                            <div id="copaTable" class="table-container"></div>
-                        </div>
-                        <div class="table-col">
-                            <h3>Artilheiros (Copa do Brasil)</h3>
-                            <div id="artilheirosCopa" class="table-container"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="copa" class="page" data-page="copa">
-                <h2>Copa do Brasil</h2>
-                <div id="cupResults">
-                    <!-- populated by app.js -->
-                </div>
-            </section>
-
-            <section id="games" class="page" data-page="games">
-                <h2>Jogos Educativos</h2>
-                <div class="games-grid" id="gamesGrid">
-                    <!-- game cards populated by app.js -->
-                </div>
-            </section>
-
-            <section id="blog" class="page" data-page="blog">
-                <h2>Blog</h2>
-                <div id="blogList">
-                    <!-- articles populated by app.js -->
-                </div>
-            </section>
-
-            <section id="about" class="page" data-page="about">
-                <h2>Sobre</h2>
-                <p>Futebol Analytics Pro nasceu da paixão por futebol e dados. Nossa missão é trazer previsões e análises baseadas em IA para torcedores e profissionais do esporte.</p>
-            </section>
-
-            <section id="contact" class="page" data-page="contact">
-                <h2>Contato</h2>
-                <form id="contactForm">
-                    <label>Nome<br><input type="text" id="contactName"></label>
-                    <label>Email<br><input type="email" id="contactEmail"></label>
-                    <label>Mensagem<br><textarea id="contactMessage"></textarea></label>
-                    <button type="submit" class="auth-button">Enviar</button>
-                </form>
-                <div id="contactSuccess" class="success" style="display:none;margin-top:8px;color:green;" role="alert" aria-live="polite">✅ Sua mensagem foi enviada. Entraremos em contato em breve.</div>
-                <div id="contactError" class="error" style="display:none;margin-top:8px;color:#e74c3c;" role="alert" aria-live="polite">❌ Ocorreu um erro ao enviar sua mensagem. Tente novamente mais tarde.</div>
-            </section>
-
-            <section id="privacy" class="page" data-page="privacy">
-                <h2>Política de Privacidade</h2>
-                <p>Respeitamos sua privacidade. Detalhes sobre processamento de dados, finalidades, bases legais, direitos dos titulares e contato do DPO estão descritos aqui.</p>
-                <h3>Consentimento</h3>
-                <p>Coletamos e processamos dados apenas com seu consentimento, quando aplicável, e para os fins informados.</p>
-            </section>
-
-            <section id="terms" class="page" data-page="terms">
-                <h2>Termos de Uso</h2>
-                <p>Termos e condições para uso da plataforma, responsabilidade, propriedade intelectual e limites de uso.</p>
-            </section>
-
-            <section id="legal" class="page" data-page="legal">
-                <h2>Aviso Legal</h2>
-                <p>Informações legais e isenções de responsabilidade sobre previsões e conteúdo da plataforma.</p>
-            </section>
-        </main>
+        <div id="backendStatus" class="backend-status" role="status" aria-live="polite">
+            <span class="status-indicator status-loading" aria-hidden="true"></span>
+            <span id="statusText">Conectando ao servidor...</span>
+            <div id="statusDetails" style="font-size: 0.8rem; margin-top: 5px;"></div>
+        </div>
+    </header>
     
-        <footer class="footer" role="contentinfo">
-            <div class="footer-links" role="navigation" aria-label="Links legais do rodapé">
-                <a href="#privacy" aria-label="Política de Privacidade">🔒 Privacidade</a> |
-                <a href="#terms" aria-label="Termos de Uso">📋 Termos de Uso</a> |
-                <a href="#legal" aria-label="Aviso Legal">⚠️ Aviso Legal</a> |
-                <a href="#contact" aria-label="Fale Conosco">📧 Fale Conosco</a>
-                |
-                <button class="auth-button" id="consentSettingsBtn" style="margin-left:8px;">Configurar Consentimento</button>
-                <button class="auth-button" id="firebaseSetupBtn" style="margin-left:8px; background:#3498db">Configurar Firebase</button>
-                <button class="auth-button" id="debugUserBtn" style="margin-left:8px; background:#9b59b6">Debug currentUser</button>
-            </div>
-            <p class="copyright">
-                © 2025 Futebol Analytics Pro. Todos os direitos reservados.
-            </p>
-            <div class="social-links" role="complementary" aria-label="Redes sociais">
-                <a href="https://twitter.com/FutebolAnalytics" target="_blank" rel="noopener noreferrer" aria-label="Siga-nos no Twitter">🐦 Twitter</a>
-            </div>
-        </footer>
-
-        <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
-        <div id="debugPanel" style="position:fixed; bottom:20px; left:20px; width:320px; max-height:50vh; overflow:auto; background:#0f0f0f; border:1px solid #333; padding:12px; border-radius:8px; display:none; z-index:5000; color:#fff;">
-            <h4 style="margin-top:0;">Debug currentUser</h4>
-            <pre id="debugContent" style="white-space:pre-wrap; word-break:break-word; font-size:0.85em; color:#cfd8dc">Nenhum usuário autenticado.</pre>
-            <div style="text-align:right; margin-top:8px;"><button class="auth-button" id="closeDebugBtn" style="background:#e74c3c">Fechar</button></div>
-        </div>
-        <div id="consentModal" class="consent-modal" style="display:none;" role="dialog" aria-modal="true">
-            <div class="consent-modal-inner">
-                <h3>Configurações de Privacidade</h3>
-                <p>Escolha os serviços que você permite:</p>
-                <div class="consent-option"><label><input type="checkbox" id="cons_analytics"> Analytics (GA)</label></div>
-                <div class="consent-option"><label><input type="checkbox" id="cons_ads"> Anúncios (Ads)</label></div>
-                <div class="consent-option"><label><input type="checkbox" id="cons_backend"> Sincronizar com Backend</label></div>
-                <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
-                    <button class="auth-button" id="saveConsentBtn">Salvar</button>
-                    <button class="auth-button" id="cancelConsentBtn" style="background:#e74c3c">Cancelar</button>
-                </div>
-            </div>
-        </div>
-        <div id="firebaseModal" class="consent-modal" style="display:none;" role="dialog" aria-modal="true">
-            <div class="consent-modal-inner">
-                <h3>Configurar Firebase (opcional)</h3>
-                <p>Cole aqui o JSON do <code>firebaseConfig</code> do seu projeto (ex: { apiKey, authDomain, projectId, ... })</p>
-                <textarea id="firebaseConfigInput" style="width:100%;height:140px;background:#111;border:1px solid #333;color:#fff;padding:8px;border-radius:6px;" placeholder='Cole o objeto JSON do firebaseConfig aqui'></textarea>
-                <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
-                    <button class="auth-button" id="saveFirebaseBtn">Salvar e Inicializar</button>
-                    <button class="auth-button" id="cancelFirebaseBtn" style="background:#e74c3c">Fechar</button>
-                </div>
-                <p style="font-size:0.85em;margin-top:8px;color:#bdc3c7">Ao salvar, a configuração será armazenada localmente no seu navegador para facilitar testes.</p>
-            </div>
-        </div>
-        <script src="app.js"></script>
-        <!-- Chart.js for dynamic statistical charts -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    </body>
-    </html>
