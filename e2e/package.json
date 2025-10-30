@@ -1,0 +1,12 @@
+{
+  "name": "fap-e2e-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node test-e2e.js"
+  },
+  "dependencies": {
+    "playwright": "^1.38.0",
+    "node-fetch": "^2.6.7"
+  }
+}
