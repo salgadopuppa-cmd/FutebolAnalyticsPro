@@ -1,0 +1,82 @@
+name: Playwright E2E Smoke Test
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  playwright-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          # Playwright browsers are cached here
+          path: |
+            ~/.cache/ms-playwright
+            ~/.cache/playwright
+          key: ${{ runner.os }}-playwright-browsers-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-browsers-
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Start static server
+        # Use serve from devDependencies; run in background and capture logs
+        run: |
+          nohup npx serve -l 4173 . > /tmp/serve.log 2>&1 &
+          echo $!
+
+      - name: Wait for server
+        run: |
+          for i in $(seq 1 20); do
+            if curl -sSf http://localhost:4173/ >/dev/null; then
+              echo "server ready"; exit 0
+            fi
+            sleep 1
+          done
+          echo "server failed to start"; cat /tmp/serve.log; exit 1
+
+      - name: Run Playwright smoke test (matrix browser)
+        run: |
+          # Use the matrix browser to run tests in chromium/firefox/webkit
+          npx playwright test e2e/quick-consent.test.js --browser=${{ matrix.browser }} --reporter=html
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report
+
+      - name: Upload raw test-results directory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-raw-results-${{ matrix.browser }}
+          path: test-results || ''

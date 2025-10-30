@@ -1,3 +1,112 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Futebol Analytics Pro: Análises de IA, Estatísticas e Palpites de Futebol 2025</title>
+    <meta name="description" content="Plataforma de análises esportivas com IA para futebol brasileiro. Estatísticas do Brasileirão 2025, Copa do Brasil, palpites inteligentes e jogos educativos. Análises táticas avançadas com inteligência artificial.">
+    <meta name="keywords" content="futebol brasileiro, análises esportivas, inteligência artificial, brasileirão 2025, copa do brasil, palpites futebol, estatísticas futebol, análises táticas, IA esportes, prognósticos futebol">
+    <meta name="author" content="Futebol Analytics Pro">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="pt-BR">
+    
+    <meta property="og:title" content="Futebol Analytics Pro: Análises de IA e Palpites de Futebol 2025">
+    <meta property="og:description" content="A mais avançada plataforma de análises esportivas do Brasil. IA, estatísticas e palpites para Brasileirão e Copa do Brasil 2025.">
+    <meta property="og:image" content="https://futebolanalytics.pro/og-image.jpg">
+    <meta property="og:url" content="https://futebolanalytics.pro">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Futebol Analytics Pro">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Futebol Analytics Pro: Análises de IA e Palpites 2025">
+    <meta name="twitter:description" content="Plataforma avançada de análises esportivas com IA para futebol brasileiro. Estatísticas, palpites e jogos educativos.">
+    <meta name="twitter:image" content="https://futebolanalytics.pro/twitter-image.jpg">
+    <meta name="twitter:site" content="@FutebolAnalytics">
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" type="image/png">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Google Analytics: consent-gated, loaded via app.js after user consent -->
+    <script type="text/plain" data-consent="analytics" data-src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script type="text/plain" data-consent="analytics">
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    
+    <!-- AdSense: consent-gated, loaded via app.js after user consent -->
+    <script type="text/plain" data-consent="ads" data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=PUB_ID" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+</head>
+<body>
+    <!-- Consent banner (CMP) -->
+    <div id="consentBanner" class="consent-banner" style="display:none;" role="dialog" aria-live="polite">
+        <div class="consent-inner">
+            <p><strong>Usamos cookies e serviços de terceiros</strong> para personalizar conteúdo, anúncios e analisar tráfego. Você aceita?</p>
+            <div class="consent-actions">
+                <button onclick="acceptAllConsent()" class="auth-button">Aceitar tudo</button>
+                <button onclick="rejectAllConsent()" class="auth-button" style="background:#e74c3c">Recusar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prebid / Ad Manager placeholders (ativar após configurar contas) -->
+    <!--
+    <script src="https://acdn.adnxs.com/prebid/not-for-prod/prebid.js"></script>
+    <script>
+        // Prebid configuration placeholder
+    </script>
+    -->
+    <header class="header" role="banner">
+        <div class="auth-section" role="complementary" aria-label="Seção de autenticação">
+            <div id="userProfile" class="user-profile" style="display: none;" role="region" aria-label="Perfil do usuário">
+                <img id="userPhoto" class="user-photo" src="" alt="Foto do usuário" width="40" height="40">
+                <div class="user-info">
+                    <div id="userName" class="user-name" aria-label="Nome do usuário"></div>
+                    <div class="user-coins" aria-label="Moedas do usuário">
+                        💰 <span id="userCoins" aria-live="polite">0</span> moedas
+                    </div>
+                </div>
+            </div>
+            <button id="signInButton" class="auth-button" aria-label="Fazer login com Google">
+                Entrar com Google
+            </button>
+            <button id="signOutButton" class="auth-button" style="display: none;" aria-label="Fazer logout">
+                Sair
+            </button>
+        </div>
+
+        <h1 class="logo">
+            <img src="logo.png" alt="Futebol Analytics Pro Logo" class="site-logo">
+        </h1>
+        <p class="subtitle" style="color: white;">Análises de IA, Estatísticas e Palpites Avançados dos Campeonatos Brasileiros 2025</p>
+
+        <div id="backendStatus" class="backend-status" role="status" aria-live="polite">
+            <span class="status-indicator status-loading" aria-hidden="true"></span>
+            <span id="statusText">Conectando ao servidor...</span>
+            <div id="statusDetails" style="font-size: 0.8rem; margin-top: 5px;"></div>
+        </div>
+    </header>
+    
+=======
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -831,3 +940,4 @@
 
 </body>
 </html>
+>>>>>>> origin/main
