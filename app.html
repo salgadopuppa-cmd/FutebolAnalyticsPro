@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Futebol Analytics Pro: AI Analysis, Statistics, and Football Predictions 2025</title>
+    <meta name="description" content="AI sports analysis platform for Brazilian football. Brasileirão 2025 statistics, Copa do Brasil, smart predictions, and educational games. Advanced tactical analysis with artificial intelligence.">
+    <meta name="keywords" content="brazilian football, sports analysis, artificial intelligence, brasileirão 2025, copa do brasil, football predictions, football statistics, tactical analysis, sports AI, football prognostics">
+    <meta name="author" content="Futebol Analytics Pro">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="en-US">
+    
+    <meta property="og:title" content="Futebol Analytics Pro: AI Analysis and Football Predictions 2025">
+    <meta property="og:description" content="Brazil's most advanced sports analysis platform. AI, statistics, and predictions for Brasileirão and Copa do Brasil 2025.">
+    <meta property="og:image" content="https://futebolanalytics.pro/og-image.jpg">
+    <meta property="og:url" content="https://futebolanalytics.pro">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Futebol Analytics Pro">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Futebol Analytics Pro: AI Analysis and Predictions 2025">
+    <meta name="twitter:description" content="Advanced sports analysis platform with AI for Brazilian football. Statistics, predictions, and educational games.">
+    <meta name="twitter:image" content="https://futebolanalytics.pro/twitter-image.jpg">
+    <meta name="twitter:site" content="@FutebolAnalytics">
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" type="image/png">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <script type="text/plain" data-consent="analytics" data-src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script type="text/plain" data-consent="analytics">
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+
+    <script type="text/plain" data-consent="ads" data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=PUB_ID" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="app-style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+</head>
+<body>
+    <div id="consentBanner" class="consent-banner" style="display:none;" role="dialog" aria-live="polite">
+        <div class="consent-inner">
+            <p><strong>We use cookies and third-party services</strong> to personalize content, ads, and analyze traffic. Do you accept?</p>
+            <div class="consent-actions">
+                <button onclick="acceptAllConsent()" class="auth-button">Accept All</button>
+                <button onclick="rejectAllConsent()" class="auth-button" style="background:#e74c3c">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <header class="header" role="banner">
+        <div class="auth-section" role="complementary" aria-label="Authentication section">
+            <div id="userProfile" class="user-profile" style="display: none;" role="region" aria-label="User profile">
+                <img id="userPhoto" class="user-photo" src="" alt="User photo" width="40" height="40">
+                <div class="user-info">
+                    <div id="userName" class="user-name" aria-label="User name"></div>
+                    <div class="user-coins" aria-label="User coins">
+                        💰 <span id="userCoins" aria-live="polite">0</span> coins
+                    </div>
+                </div>
+            </div>
+            <button id="signInButton" class="auth-button" aria-label="Sign in with Google">
+                Sign in with Google
+            </button>
+            <button id="signOutButton" class="auth-button" style="display: none;" aria-label="Sign out">
+                Sign Out
+            </button>
+        </div>
+
+        <h1 class="logo">
+            <img src="logo.png" alt="Futebol Analytics Pro Logo" class="site-logo">
+        </h1>
+        <p class="subtitle" style="color: white;">AI Analysis, Statistics, and Advanced Predictions for the Brazilian Championships 2025</p>
+
+        <div id="backendStatus" class="backend-status" role="status" aria-live="polite">
+            <span class="status-indicator status-loading" aria-hidden="true"></span>
+            <span id="statusText">Connecting to server...</span>
+            <div id="statusDetails" style="font-size: 0.8rem; margin-top: 5px;"></div>
+        </div>
+    </header>
+
+    <script src="app-logic.js"></script>
+
+</body>
+</html>
