@@ -54,6 +54,7 @@
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
 </head>
 <body>
+
     <div id="consentBanner" class="consent-banner" style="display:none;" role="dialog" aria-live="polite">
         <div class="consent-inner">
             <p><strong>We use cookies and third-party services</strong> to personalize content, ads, and analyze traffic. Do you accept?</p>
@@ -83,9 +84,9 @@
             </button>
         </div>
 
-        <h1 class="logo">
-            <img src="logo.png" alt="Futebol Analytics Pro Logo" class="site-logo">
-        </h1>
+        <a href="index.html" class="logo" style="text-decoration: none;">
+            <img src="img/logo.png" alt="Futebol Analytics Pro Logo" class="site-logo">
+        </a>
         <p class="subtitle" style="color: white;">AI Analysis, Statistics, and Advanced Predictions for the Brazilian Championships 2025</p>
 
         <div id="backendStatus" class="backend-status" role="status" aria-live="polite">
@@ -95,7 +96,101 @@
         </div>
     </header>
 
-    <script src="app-logic.js"></script>
+    <nav class="navigation" role="navigation" aria-label="Main navigation">
+        <ul class="nav-buttons">
+            <li><a href="#dashboard" class="nav-btn active" data-page="page-dashboard">Dashboard</a></li>
+            <li><a href="#premier" class="nav-btn" data-page="page-premier">Premier League</a></li>
+            <li><a href="#laliga" class="nav-btn" data-page="page-laliga">LaLiga</a></li>
+            <li><a href="#seriea-ita" class="nav-btn" data-page="page-seriea-ita">Serie A (ITA)</a></li>
+            <li><a href="#ucl" class="nav-btn" data-page="page-ucl">Champions League</a></li>
+            <li><a href="#libertadores" class="nav-btn" data-page="page-libertadores">Libertadores</a></li>
+            <li><a href="#games" class="nav-btn" data-page="page-games">Mini-Games</a></li>
+        </ul>
+    </nav>
+
+    <main class="container" role="main">
+
+        <section id="page-dashboard" class="page active">
+            <h2>Dashboard (Brasileirão)</h2>
+            <div class="sign-in-prompt">
+                <p>🔒 Sign in to see advanced AI analysis and stats for Brasileirão Série A & B.</p>
+            </div>
+            <div class="auth-required">
+                <h3>Série A - Classification</h3>
+                <div id="serieATable" class="table-container loading"><div class="spinner"></div></div>
+                
+                <h3>Série B - Classification</h3>
+                <div id="serieBTable" class="table-container loading"><div class="spinner"></div></div>
+            </div>
+        </section>
+
+        <section id="page-premier" class="page">
+            <h2>Premier League</h2>
+            <div id="premierTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="premierScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="premierMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+
+        <section id="page-laliga" class="page">
+            <h2>LaLiga</h2>
+            <div id="laligaTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="laligaScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="laligaMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+
+        <section id="page-seriea-ita" class="page">
+            <h2>Serie A (Italy)</h2>
+            <div id="serieaItaTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="serieaItaScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="serieaItaMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+
+        <section id="page-ucl" class="page">
+            <h2>UEFA Champions League</h2>
+            <div id="uclTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="uclScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="uclMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+        
+        <section id="page-libertadores" class="page">
+            <h2>Copa Libertadores</h2>
+            <div id="libertadoresTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="libertadoresScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="libertadoresMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+
+        <section id="page-games" class="page">
+            <h2>Mini-Games</h2>
+            <p>Play games to earn coins! 💰</p>
+            <div id="gameContentArea" class="table-container">
+                <p class="sign-in-prompt">Sign in to play and earn coins!</p>
+            </div>
+            <div class="games-grid auth-required">
+                <div class="game-card">
+                    <h3 class="game-title">⚽ Penalty Precision</h3>
+                    <p class="game-description">Hit the targets in the goal to score points.</p>
+                    <button class="play-button" onclick="openGame('precisao')">Play Now</button>
+                </div>
+                <div class="game-card">
+                    <h3 class="game-title">🧤 Goalkeeper Pro</h3>
+                    <p class="game-description">Stop as many shots as you can!</p>
+                    <button class="play-button" onclick="openGame('goleiro')">Play Now</button>
+                </div>
+                <div class="game-card">
+                    <h3 class="game-title">🏆 Global Ranking</h3>
+                    <p class="game-description">See how your coin total ranks against other users.</p>
+                    <button class="play-button" onclick="openGame('ranking')">View Ranking</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <div id="toastContainer"></div>
+    
+    <script src="app-logic.js" type="module"></script>
 
 </body>
 </html>
+
+
