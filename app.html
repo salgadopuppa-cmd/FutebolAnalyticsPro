@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Futebol Analytics Pro: AI Analysis, Statistics, and Football Predictions 2025</title>
+    <meta name="description" content="AI sports analysis platform for Brazilian football. Brasileirão 2025 statistics, Copa do Brasil, smart predictions, and educational games. Advanced tactical analysis with artificial intelligence.">
+    <meta name="keywords" content="brazilian football, sports analysis, artificial intelligence, brasileirão 2025, copa do brasil, football predictions, football statistics, tactical analysis, sports AI, football prognostics">
+    <meta name="author" content="Futebol Analytics Pro">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="en-US">
+    
+    <meta property="og:title" content="Futebol Analytics Pro: AI Analysis and Football Predictions 2025">
+    <meta property="og:description" content="Brazil's most advanced sports analysis platform. AI, statistics, and predictions for Brasileirão and Copa do Brasil 2025.">
+    <meta property="og:image" content="https://futebolanalytics.pro/og-image.jpg">
+    <meta property="og:url" content="https://futebolanalytics.pro">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Futebol Analytics Pro">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Futebol Analytics Pro: AI Analysis and Predictions 2025">
+    <meta name="twitter:description" content="Advanced sports analysis platform with AI for Brazilian football. Statistics, predictions, and educational games.">
+    <meta name="twitter:image" content="https://futebolanalytics.pro/twitter-image.jpg">
+    <meta name="twitter:site" content="@FutebolAnalytics">
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" type="image/png">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <script type="text/plain" data-consent="analytics" data-src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script type="text/plain" data-consent="analytics">
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+
+    <script type="text/plain" data-consent="ads" data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=PUB_ID" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="app-style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+</head>
+<body>
+
+    <div id="consentBanner" class="consent-banner" style="display:none;" role="dialog" aria-live="polite">
+        <div class="consent-inner">
+            <p><strong>We use cookies and third-party services</strong> to personalize content, ads, and analyze traffic. Do you accept?</p>
+            <div class="consent-actions">
+                <button onclick="acceptAllConsent()" class="auth-button">Accept All</button>
+                <button onclick="rejectAllConsent()" class="auth-button" style="background:#e74c3c">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <header class="header" role="banner">
+        <div class="auth-section" role="complementary" aria-label="Authentication section">
+            <div id="userProfile" class="user-profile" style="display: none;" role="region" aria-label="User profile">
+                <img id="userPhoto" class="user-photo" src="" alt="User photo" width="40" height="40">
+                <div class="user-info">
+                    <div id="userName" class="user-name" aria-label="User name"></div>
+                    <div class="user-coins" aria-label="User coins">
+                        💰 <span id="userCoins" aria-live="polite">0</span> coins
+                    </div>
+                </div>
+            </div>
+            <button id="signInButton" class="auth-button" aria-label="Sign in with Google">
+                Sign in with Google
+            </button>
+            <button id="signOutButton" class="auth-button" style="display: none;" aria-label="Sign out">
+                Sign Out
+            </button>
+        </div>
+
+        <a href="index.html" class="logo" style="text-decoration: none;">
+            <img src="img/logo.png" alt="Futebol Analytics Pro Logo" class="site-logo">
+        </a>
+        <p class="subtitle" style="color: white;">AI Analysis, Statistics, and Advanced Predictions for the Brazilian Championships 2025</p>
+
+        <div id="backendStatus" class="backend-status" role="status" aria-live="polite">
+            <span class="status-indicator status-loading" aria-hidden="true"></span>
+            <span id="statusText">Connecting to server...</span>
+            <div id="statusDetails" style="font-size: 0.8rem; margin-top: 5px;"></div>
+        </div>
+    </header>
+
+    <nav class="navigation" role="navigation" aria-label="Main navigation">
+        <ul class="nav-buttons">
+            <li><a href="#dashboard" class="nav-btn active" data-page="page-dashboard">Dashboard</a></li>
+            <li><a href="#premier" class="nav-btn" data-page="page-premier">Premier League</a></li>
+            <li><a href="#laliga" class="nav-btn" data-page="page-laliga">LaLiga</a></li>
+            <li><a href="#seriea-ita" class="nav-btn" data-page="page-seriea-ita">Serie A (ITA)</a></li>
+            <li><a href="#ucl" class="nav-btn" data-page="page-ucl">Champions League</a></li>
+            <li><a href="#libertadores" class="nav-btn" data-page="page-libertadores">Libertadores</a></li>
+            <li><a href="#games" class="nav-btn" data-page="page-games">Mini-Games</a></li>
+        </ul>
+    </nav>
+
+    <main class="container" role="main">
+
+        <section id="page-dashboard" class="page active">
+            <h2>Dashboard (Brasileirão)</h2>
+            <div class="sign-in-prompt">
+                <p>🔒 Sign in to see advanced AI analysis and stats for Brasileirão Série A & B.</p>
+            </div>
+            <div class="auth-required">
+                <h3>Série A - Classification</h3>
+                <div id="serieATable" class="table-container loading"><div class="spinner"></div></div>
+                
+                <h3>Série B - Classification</h3>
+                <div id="serieBTable" class="table-container loading"><div class="spinner"></div></div>
+            </div>
+        </section>
+
+        <section id="page-premier" class="page">
+            <h2>Premier League</h2>
+            <div id="premierTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="premierScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="premierMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+
+        <section id="page-laliga" class="page">
+            <h2>LaLiga</h2>
+            <div id="laligaTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="laligaScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="laligaMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+
+        <section id="page-seriea-ita" class="page">
+            <h2>Serie A (Italy)</h2>
+            <div id="serieaItaTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="serieaItaScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="serieaItaMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+
+        <section id="page-ucl" class="page">
+            <h2>UEFA Champions League</h2>
+            <div id="uclTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="uclScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="uclMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+        
+        <section id="page-libertadores" class="page">
+            <h2>Copa Libertadores</h2>
+            <div id="libertadoresTable" class="table-container loading"><div class="spinner"></div></div>
+            <div id="libertadoresScorers" class="table-container loading"><div class="spinner"></div></div>
+            <div id="libertadoresMatches" class="table-container loading"><div class="spinner"></div></div>
+        </section>
+
+        <section id="page-games" class="page">
+            <h2>Mini-Games</h2>
+            <p>Play games to earn coins! 💰</p>
+            <div id="gameContentArea" class="table-container">
+                <p class="sign-in-prompt">Sign in to play and earn coins!</p>
+            </div>
+            <div class="games-grid auth-required">
+                <div class="game-card">
+                    <h3 class="game-title">⚽ Penalty Precision</h3>
+                    <p class="game-description">Hit the targets in the goal to score points.</p>
+                    <button class="play-button" onclick="openGame('precisao')">Play Now</button>
+                </div>
+                <div class="game-card">
+                    <h3 class="game-title">🧤 Goalkeeper Pro</h3>
+                    <p class="game-description">Stop as many shots as you can!</p>
+                    <button class="play-button" onclick="openGame('goleiro')">Play Now</button>
+                </div>
+                <div class="game-card">
+                    <h3 class="game-title">🏆 Global Ranking</h3>
+                    <p class="game-description">See how your coin total ranks against other users.</p>
+                    <button class="play-button" onclick="openGame('ranking')">View Ranking</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <div id="toastContainer"></div>
+    
+    <script src="app-logic.js" type="module"></script>
+
+</body>
+</html>
+
+
