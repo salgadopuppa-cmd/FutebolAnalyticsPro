@@ -1,80 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futebol Analytics Pro - Data-Driven Football Insights</title>
+    <title>Futebol Analytics Pro - Análises, Estatísticas e Notícias</title>
+    <meta name="description" content="Análises aprofundadas, estatísticas de jogadores e as últimas notícias do Brasileirão e futebol internacional.">
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="img/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Inter:wght@600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
+    <div class="ad-leaderboard ad-placeholder">
+        Leaderboard Ad (728x90)
+    </div>
+
     <header class="main-header">
-        <nav class="main-nav">
-            <a href="#" class="logo">
+        <div class="header-content">
+            <a href="/" class="logo">
                 <img src="img/logo.png" alt="Futebol Analytics Pro Logo">
-                <span>Futebol Analytics Pro</span>
             </a>
-            <ul>
-                <li><a href="app.html">Dashboard</a></li>
-                <li><a href="#features">Analysis</a></li>
-                <li><a href="#features">Players</a></li>
-                <li><a href="app.html#page-contact">Contact</a></li>
-            </ul>
-        </nav>
+            <nav class="main-nav">
+                <a href="#">Notícias</a>
+                <a href="#">Análises</a>
+                <a href="#">Estatísticas</a>
+                <a href="#">Colunas</a>
+            </nav>
+        </div>
     </header>
 
-    <main>
-        <section class="hero">
-            <div class="video-background-wrapper">
-                <div class="video-overlay"></div>
-                <iframe 
-                    src="https://www.youtube.com/embed/UIPjknTHipE?autoplay=1&mute=1&loop=1&playlist=UIPjknTHipE&controls=0&showinfo=0&autohide=1&modestbranding=1" 
-                    frameborder="0" 
-                    allow="autoplay; encrypted-media" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-            <div class="hero-content">
-                <h1 class="fade-in">Unlock the Game with Data</h1>
-                <p class="fade-in">The ultimate platform for deep-diving into football statistics and performance metrics.</p>
-                <div class="cta-buttons fade-in">
-                    <a href="app.html" class="btn btn-primary">View Dashboard</a>
-                    <a href="#features" class="btn btn-secondary">Learn More</a>
-                </div>
-            </div>
-        </section>
+    <div class="container">
+        
+        <aside class="sidebar-left">
+            <h3>Competições</h3>
+            <nav class="league-nav">
+                <a href="#" class="active">Brasileirão Série A</a>
+                <a href="#">Brasileirão Série B</a>
+                <a href="#">Copa do Brasil</a>
+                <a href="#">Premier League</a>
+                <a href="#">La Liga</a>
+                <a href="#">Champions League</a>
+            </nav>
+        </aside>
 
-        <section id="features" class="features-section">
-            <div class="container">
-                <h2>Core Features</h2>
-                <div class="features-grid">
-                    <div class="feature-card fade-in">
-                        <h3>Player Performance</h3>
-                        <p>Analyze detailed player statistics, from passing accuracy to defensive actions.</p>
-                    </div>
-                    <div class="feature-card fade-in">
-                        <h3>Team Analytics</h3>
-                        <p>Compare team strategies, formations, and in-game performance metrics.</p>
-                    </div>
-                    <div class="feature-card fade-in">
-                        <h3>Match Predictions</h3>
-                        <p>Leverage our predictive models to forecast match outcomes with high accuracy.</p>
-                    </div>
+        <main class="main-content">
+            
+            <section class="featured-article">
+                <img src="https://via.placeholder.com/600x350?text=Imagem+Destaque" alt="Artigo em Destaque">
+                <div class="featured-text">
+                    <span class="category-tag">Análise Tática</span>
+                    <h2>IA prevê: Os 5 jovens do Brasileirão com maior potencial de explosão em 2026</h2>
+                    <p>Nossa análise preditiva identifica os próximos talentos com base em métricas de desempenho, potencial de crescimento e valor de mercado.</p>
+                </div>
+            </section>
+
+            <div class="ad-in-content ad-placeholder">
+                In-Content Ad (300x250)
+            </div>
+
+            <section class="latest-analysis">
+                <h3>Últimas Análises</h3>
+                <div class="article-grid">
+                    <article class="article-card">
+                        <img src="https://via.placeholder.com/300x180?text=Tática" alt="Artigo">
+                        <span class="category-tag">Brasileirão A</span>
+                        <h4>Análise: Como o Flamengo de 2025 quebra linhas com 3 passes</h4>
+                    </article>
+                    <article class="article-card">
+                        <img src="https://via.placeholder.com/300x180?text=Mercado" alt="Artigo">
+                        <span class="category-tag">Mercado da Bola</span>
+                        <h4>5 jogadores da Série B que seu time da Série A deveria contratar</h4>
+                    </article>
+                    <article class="article-card">
+                        <img src="https://via.placeholder.com/300x180?text=Stats" alt="Artigo">
+                        <span class="category-tag">Estatísticas</span>
+                        <h4>Além do "xG": A métrica que realmente define um atacante de elite</h4>
+                    </article>
+                    <article class="article-card">
+                        <img src="https://via.placeholder.com/300x180?text=Copa" alt="Artigo">
+                        <span class="category-tag">Copa do Brasil</span>
+                        <h4>O fator surpresa: Por que times menores estão indo mais longe na Copa?</h4>
+                    </article>
+                </div>
+            </section>
+
+        </main>
+
+        <aside class="sidebar-right">
+            
+            <div class="ad-sticky-sidebar">
+                <div class="ad-placeholder" style="height: 600px;">
+                    Sticky Ad (300x600)
                 </div>
             </div>
-        </section>
-    </main>
+
+            <div class="widget-tool">
+                <h4>Head-to-Head</h4>
+                <p>Compare times ou jogadores:</p>
+                <select>
+                    <option>Escolha o Time 1</option>
+                    <option>Flamengo</option>
+                    <option>Palmeiras</option>
+                </select>
+                <select>
+                    <option>Escolha o Time 2</option>
+                    <option>Corinthians</option>
+                    <option>São Paulo</option>
+                </select>
+                <button>Comparar</button>
+            </div>
+        </aside>
+
+    </div>
 
     <footer class="main-footer">
-        <div class="container">
-            <p>&copy; 2025 Futebol Analytics Pro. All Rights Reserved.</p>
-        </div>
+        <p>© 2025 Futebol Analytics Pro. Todos os direitos reservados.</p>
+        <p>
+            <a href="#">Sobre Nós</a> | <a href="#">Contato</a> | <a href="#">Política de Privacidade</a>
+        </p>
     </footer>
 
-    <script src="js/script.js"></script>
 </body>
 </html>
