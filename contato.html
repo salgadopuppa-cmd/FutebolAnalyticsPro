@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato - Futebol Analytics Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Inter:wght@600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="ad-leaderboard ad-placeholder">Leaderboard Ad (728x90)</div>
+
+    <header class="main-header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <img src="img/logo.png" alt="Futebol Analytics Pro Logo">
+            </a>
+            <nav class="main-nav">
+                <a href="/blog.html">Blog</a>
+                <a href="/analises.html">Análises</a>
+                <a href="/estatisticas.html">Estatísticas</a>
+                <a href="/sobre.html">Sobre Nós</a>
+                <a href="/contato.html">Contato</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <aside class="sidebar-left">
+            <h3>Competições</h3>
+            <nav class="league-nav">
+                <a href="/estatisticas/brasileirao-a.html" class="active">Brasileirão Série A</a>
+                <a href="/estatisticas/brasileirao-b.html">Brasileirão Série B</a>
+                <a href="/estatisticas/copa-do-brasil.html">Copa do Brasil</a>
+                <a href="/estatisticas/premier-league.html">Premier League</a>
+                <a href="/estatisticas/la-liga.html">La Liga</a>
+                <a href="/estatisticas/champions-league.html">Champions League</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <h1>Entre em Contato</h1>
+            <p>Tem alguma dúvida, sugestão ou proposta comercial? Use o formulário abaixo.</p>
+            
+            <form action="#" method="POST" class="contact-form">
+                <div class="form-group">
+                    <label for="name">Nome:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Assunto:</label>
+                    <input type="text" id="subject" name="subject">
+                </div>
+                <div class="form-group">
+                    <label for="message">Mensagem:</label>
+                    <textarea id="message" name="message" rows="6" required></textarea>
+                </div>
+                <button type="submit" class="cta-button">Enviar Mensagem</button>
+            </form>
+            
+        </main>
+
+        <aside class="sidebar-right">
+            <div class="ad-sticky-sidebar">
+                <div class="ad-placeholder" style="height: 600px;">Sticky Ad (300x600)</div>
+            </div>
+        </aside>
+
+    </div>
+
+    <footer class="main-footer">
+        <p>© 2025 Futebol Analytics Pro. Todos os direitos reservados.</p>
+        <p>
+            <a href="/sobre.html">Sobre Nós</a> | <a href="/contato.html">Contato</a> | <a href="/privacidade.html">Política de Privacidade</a>
+        </p>
+    </footer>
+
+    <style>
+        .contact-form { margin-top: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--text-dark); }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: var(--font-body);
+        }
+        .cta-button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+
+</body>
+</html>
