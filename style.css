@@ -55,9 +55,6 @@ h1, h2, h3, h4 {
     margin: 20px auto;
     padding: 0 20px;
     display: grid;
-    /* Este é o layout de 3 colunas:
-       200px (Nav) | 1fr (Conteúdo) | 300px (Anúncios)
-    */
     grid-template-columns: 200px 1fr 300px;
     gap: 25px;
 }
@@ -69,7 +66,6 @@ h1, h2, h3, h4 {
     background-color: var(--white);
     border-bottom: 1px solid var(--border-color);
     padding: 15px 0;
-    /* Sombra sutil para "flutuar" */
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
@@ -83,7 +79,7 @@ h1, h2, h3, h4 {
 }
 
 .logo img {
-    height: 40px; /* Altura fixa para o logo */
+    height: 40px; 
     width: auto;
 }
 
@@ -132,7 +128,6 @@ h1, h2, h3, h4 {
    5. Sidebars
    ======================================= */
 
-/* Sidebar Esquerda (Navegação) */
 .sidebar-left h3 {
     border-bottom: 2px solid var(--primary-color);
     padding-bottom: 5px;
@@ -146,14 +141,13 @@ h1, h2, h3, h4 {
     margin-bottom: 5px;
 }
 .league-nav a.active, .league-nav a:hover {
-    background-color: #e6f7eb; /* Fundo verde claro */
+    background-color: #e6f7eb; 
     color: var(--primary-color);
 }
 
-/* Sidebar Direita (Anúncios e Ferramentas) */
 .ad-sticky-sidebar {
     position: sticky;
-    top: 20px; /* "Gruda" 20px do topo */
+    top: 20px; 
 }
 
 .widget-tool {
@@ -200,6 +194,10 @@ h1, h2, h3, h4 {
 }
 
 /* Artigo em Destaque */
+.featured-article-link {
+    text-decoration: none;
+    color: inherit;
+}
 .featured-article {
     display: grid;
     grid-template-columns: 1.5fr 1fr;
@@ -230,11 +228,19 @@ h1, h2, h3, h4 {
     grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
+.article-card-link {
+    text-decoration: none;
+    color: inherit;
+}
 .article-card {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
+}
+.article-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .article-card img {
     width: 100%;
@@ -270,23 +276,18 @@ h1, h2, h3, h4 {
    ======================================= */
 @media (max-width: 900px) {
     .container {
-        /* Transforma em 1 coluna */
         grid-template-columns: 1fr;
     }
 
     .sidebar-left {
-        /* Oculta a navegação da esquerda em telas pequenas */
-        /* (Uma solução real usaria um menu "hambúrguer") */
         display: none;
     }
 
     .sidebar-right {
-        /* Move a sidebar de anúncios para baixo do conteúdo */
-        grid-row: 2; /* Coloca ela na segunda linha */
+        grid-row: 2;
     }
-    
+
     .ad-sticky-sidebar {
-        /* Desativa o "sticky" em telas pequenas */
         position: static;
     }
 }
@@ -296,11 +297,11 @@ h1, h2, h3, h4 {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .featured-article {
         grid-template-columns: 1fr;
     }
-    
+
     .article-grid {
         grid-template-columns: 1fr;
     }
