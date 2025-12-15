@@ -16,3 +16,16 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(element);
     });
 });
+
+// fallback para imagens dos posts — adicionado por fix/blog-images
+document.addEventListener('DOMContentLoaded', function() {
+  const placeholder = 'img/placeholder-article.png';
+  document.querySelectorAll('img.blog-image').forEach(img => {
+    img.addEventListener('error', function() {
+      if (!this.dataset._fallbacked) {
+        this.dataset._fallbacked = '1';
+        this.src = placeholder;
+      }
+    });
+  });
+});
