@@ -57,7 +57,6 @@
         // Create new script element
         const script = document.createElement('script');
         script.src = dataSrc;
-        script.setAttribute('data-consent-loaded', consentType);
         
         // Copy other attributes
         Array.from(placeholder.attributes).forEach(attr => {

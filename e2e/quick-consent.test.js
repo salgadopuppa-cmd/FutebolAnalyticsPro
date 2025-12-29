@@ -15,20 +15,19 @@ test('consent gating loads analytics and ads scripts', async ({ page }) => {
   await page.goto('http://localhost:4173', { waitUntil: 'domcontentloaded' });
 
   // Verify placeholders exist (these should be in the HTML)
+  // These are soft checks - if placeholders don't exist, the test will still proceed
+  // but log warnings since the real functionality may auto-inject based on localStorage
   const gaExternalPlaceholder = page.locator('script[data-consent="analytics"][data-src]');
   const adsPlaceholder = page.locator('script[data-consent="ads"][data-src]');
   const gtagInit = page.locator('script#gtag-init[data-consent="analytics"]');
 
-  // Check that placeholders are present
-  await expect(gaExternalPlaceholder).toHaveCount(1, { timeout: 5000 }).catch(() => {
-    console.log('Warning: Analytics placeholder not found in HTML');
-  });
-  await expect(adsPlaceholder).toHaveCount(1, { timeout: 5000 }).catch(() => {
-    console.log('Warning: Ads placeholder not found in HTML');
-  });
-  await expect(gtagInit).toHaveCount(1, { timeout: 5000 }).catch(() => {
-    console.log('Warning: gtag-init placeholder not found in HTML');
-  });
+  const gaCount = await gaExternalPlaceholder.count();
+  const adsCount = await adsPlaceholder.count();
+  const gtagCount = await gtagInit.count();
+  
+  if (gaCount < 1) console.log('Warning: Analytics placeholder not found in HTML');
+  if (adsCount < 1) console.log('Warning: Ads placeholder not found in HTML');
+  if (gtagCount < 1) console.log('Warning: gtag-init placeholder not found in HTML');
 
   // Sanity check: ensure real scripts are NOT present initially
   const gaRealBefore = await page.$('script[src*="googletagmanager.com"]');
