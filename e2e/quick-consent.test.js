@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 // Robust consent test: preseed localStorage, verify placeholders, inject and validate scripts
 test('consent gating loads analytics and ads scripts', async ({ page }) => {
-  // Preseed localStorage with consent BEFORE navigation
+  // Preseed localStorage with consent BEFORE navigation using addInitScript
   await page.addInitScript(() => {
     localStorage.setItem('fap_user_consent_v1', JSON.stringify({ 
       analytics: true, 
@@ -14,7 +14,7 @@ test('consent gating loads analytics and ads scripts', async ({ page }) => {
   // Load the app served at localhost:4173
   await page.goto('http://localhost:4173', { waitUntil: 'domcontentloaded' });
 
-  // Verify placeholders exist
+  // Verify placeholders exist (these are always in HTML regardless of consent)
   const gaExternalPlaceholder = page.locator('script[data-consent="analytics"][data-src]');
   const adsPlaceholder = page.locator('script[data-consent="ads"][data-src]');
   const gtagInit = page.locator('script#gtag-init[data-consent="analytics"]');
@@ -23,13 +23,11 @@ test('consent gating loads analytics and ads scripts', async ({ page }) => {
   await expect(adsPlaceholder).toHaveCount(1);
   await expect(gtagInit).toHaveCount(1);
 
-  // Ensure real scripts are NOT present initially (before injection)
-  const gaRealBefore = await page.$('script[src*="googletagmanager.com"]');
-  const adsRealBefore = await page.$('script[src*="googlesyndication.com"]');
-  expect(gaRealBefore).toBeNull();
-  expect(adsRealBefore).toBeNull();
+  // Note: Because consent was preseeded, scripts may already be injected by app.js
+  // The test should verify that the injection happened, not that it hasn't happened yet
 
   // Call injectConsentScripts() from page context as fallback and log the attempt
+  // This is idempotent so it's safe to call even if already executed
   await page.evaluate(() => {
     console.log('Fallback: calling injectConsentScripts() manually');
     if (typeof window.injectConsentScripts === 'function') {
@@ -60,4 +58,6 @@ test('consent gating loads analytics and ads scripts', async ({ page }) => {
 
   console.log('✓ Consent test passed: placeholders verified, scripts injected with correct hosts');
 });
+
+
 
