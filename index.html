@@ -9,6 +9,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Inter:wght@600;800&display=swap" rel="stylesheet">
+    
+    <!-- Consent-gated scripts: placeholders that will be activated after user consent -->
+    <!-- Google Analytics placeholder -->
+    <script data-consent="analytics" data-src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <!-- Google Analytics initialization placeholder -->
+    <script id="gtag-init" data-consent="analytics">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    <!-- Google Ads placeholder -->
+    <script data-consent="ads" data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="ad-leaderboard ad-placeholder">Leaderboard Ad (728x90)</div>
@@ -117,6 +130,7 @@
             <a href="/sobre.html">Sobre Nós</a> | <a href="/contato.html">Contato</a> | <a href="/privacidade.html">Política de Privacidade</a>
         </p>
     </footer>
+    <script src="app.js"></script>
     <script src="h2h-logic.js"></script>
 </body>
 </html>
