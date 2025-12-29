@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "node test-e2e.js"
+    "test": "node test-e2e.js",
+    "test:consent": "npx playwright test quick-consent.test.js"
   },
   "dependencies": {
     "playwright": "^1.38.0",
     "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.38.0"
   }
 }
