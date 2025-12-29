@@ -2,3 +2,5 @@ node_modules
 
 /server/node_modules
 
+e2e/test-results/
+e2e/node_modules/

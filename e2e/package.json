@@ -6,7 +6,10 @@
     "test": "node test-e2e.js"
   },
   "dependencies": {
-    "playwright": "^1.38.0",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "playwright": "^1.38.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
   }
 }
