@@ -55,8 +55,6 @@ test('consent gating loads analytics and ads scripts', async ({ page }) => {
   
   // At least one ads script should be present
   expect(adsScriptSyndication !== null || adsScriptDoubleClick !== null).toBe(true);
-
-  console.log('✓ Consent test passed: placeholders verified, scripts injected with correct hosts');
 });
 
 

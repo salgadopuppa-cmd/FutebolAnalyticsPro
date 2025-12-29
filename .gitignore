@@ -2,3 +2,13 @@ node_modules
 
 /server/node_modules
 
+# Test artifacts
+test-results/
+e2e/test-results/
+
+# Logs
+*.log
+
+# Playwright traces
+traces/
+

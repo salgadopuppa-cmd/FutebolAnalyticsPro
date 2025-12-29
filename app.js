@@ -47,12 +47,24 @@
     // Inject external gtag script
     if (gaExternalPlaceholder) {
       const src = gaExternalPlaceholder.getAttribute('data-src');
-      if (src && !document.querySelector('script[src="' + src + '"]')) {
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = src;
-        script.setAttribute('data-consent-loaded', 'analytics');
-        document.head.appendChild(script);
+      if (src) {
+        // Check if script with this src already exists
+        const existingScripts = document.querySelectorAll('script[src]');
+        let alreadyInjected = false;
+        for (let i = 0; i < existingScripts.length; i++) {
+          if (existingScripts[i].src === src) {
+            alreadyInjected = true;
+            break;
+          }
+        }
+        
+        if (!alreadyInjected) {
+          const script = document.createElement('script');
+          script.async = true;
+          script.src = src;
+          script.setAttribute('data-consent-loaded', 'analytics');
+          document.head.appendChild(script);
+        }
       }
     }
 
@@ -78,13 +90,25 @@
 
     if (adsPlaceholder) {
       const src = adsPlaceholder.getAttribute('data-src');
-      if (src && !document.querySelector('script[src="' + src + '"]')) {
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = src;
-        script.setAttribute('data-consent-loaded', 'ads');
-        script.crossOrigin = 'anonymous';
-        document.head.appendChild(script);
+      if (src) {
+        // Check if script with this src already exists
+        const existingScripts = document.querySelectorAll('script[src]');
+        let alreadyInjected = false;
+        for (let i = 0; i < existingScripts.length; i++) {
+          if (existingScripts[i].src === src) {
+            alreadyInjected = true;
+            break;
+          }
+        }
+        
+        if (!alreadyInjected) {
+          const script = document.createElement('script');
+          script.async = true;
+          script.src = src;
+          script.setAttribute('data-consent-loaded', 'ads');
+          script.crossOrigin = 'anonymous';
+          document.head.appendChild(script);
+        }
       }
     }
   }
